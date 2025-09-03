@@ -18,12 +18,13 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
   const auth = await Auth.findOne({ email: payload.email, isAccountVerified: true });
   if (auth) throw new AppError(400, "User already exists!");
 
+  payload.country = payload.country.toLowerCase();
 
   const session = await startSession();
   session.startTransaction();
 
   try {
-    const user = await User.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true });
+    const user = await User.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
 
     // hash password
     const hashedPassword = await bcrypt.hash(
@@ -50,7 +51,7 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
       otpAttempts: 0,
     }
 
-    await Auth.findOneAndUpdate({ email: payload.email }, authData, { upsert: true });
+    await Auth.findOneAndUpdate({ email: payload.email }, authData, { upsert: true, session });
 
     if (user) {
       // send otp
@@ -70,7 +71,7 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
         }
 
         await axios.post(
-          'https://nodemailer-ecru-one.vercel.app',
+          config.send_email_url as string,
           emailData,
         )
       })

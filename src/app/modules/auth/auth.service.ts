@@ -8,8 +8,75 @@ import generateOTP from "../../utils/generateOTP";
 import isUserExist from "../../utils/isUserExist";
 import fs from "fs";
 import path from "path";
-import mongoose from "mongoose";
+import mongoose, { startSession } from "mongoose";
+import generateRandomString from "../../utils/generateRandomString";
 import axios from "axios";
+import { userRoles } from "../../constants/global.constant";
+import Editor from "../editor/editor.model";
+import { TModeratorSignUp } from "./auth.validation";
+
+const createModerator = async (payload: TModeratorSignUp) => {
+  const auth = await Auth.findOne({ email: payload.email, isAccountVerified: true });
+  if (auth) throw new AppError(400, "Editor already exists!");
+
+  const session = await startSession();
+  session.startTransaction();
+
+  try {
+    let moderator = null;
+    if (payload.role === userRoles.editor) {
+      moderator = await Editor.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
+    } else if (payload.role === userRoles.viewer) {
+      throw new AppError(400, "Change model to create viewer!");
+      moderator = await Editor.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
+    }
+
+    const password = generateRandomString();
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, Number(config.salt_rounds));
+
+    // Prepare auth data
+    const authData = {
+      email: payload.email,
+      password: hashedPassword,
+      user: moderator?._id,
+      role: payload.role,
+      isAccountVerified: true
+    };
+
+    await Auth.findOneAndUpdate({ email: payload.email }, authData, { upsert: true, session });
+
+    if (moderator) {
+      // Send OTP
+      const emailTemplatePath = "./src/app/emailTemplates/sharePassword.html";
+      const subject = `Your Password - Yalla Coupon`;
+      const year = new Date().getFullYear().toString();
+      fs.readFile(emailTemplatePath, "utf8", async (err, data) => {
+        if (err) throw new AppError(500, err.message || "Something went wrong");
+        const emailContent = data
+          .replace('{{password}}', password)
+          .replace('{{role}}', payload.role)
+          .replace('{{year}}', year);
+
+        const emailData = {
+          to: payload.email,
+          subject,
+          html: emailContent,
+        };
+
+        await axios.post(config.send_email_url as string, emailData);
+      });
+    }
+
+    await session.commitTransaction();
+    return moderator;
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(500, error.message || "Error creating moderator!");
+  } finally {
+    session.endSession();
+  }
+};
 
 const loginUser = async (payload: { email: string; password: string, isRemember: boolean }) => {
   const user = await isUserExist(payload.email);
@@ -73,7 +140,7 @@ const sendOtp = async (payload: { email: string }) => {
     }
 
     await axios.post(
-      'https://nodemailer-ecru-one.vercel.app',
+      config.send_email_url as string,
       emailData,
     )
   })
@@ -131,7 +198,7 @@ const verifyOtp = async (payload: {
       }
 
       await axios.post(
-        'https://nodemailer-ecru-one.vercel.app',
+        config.send_email_url as string,
         emailData,
       )
     })
@@ -184,7 +251,7 @@ const resetForgottenPassword = async (payload: {
       }
 
       await axios.post(
-        'https://nodemailer-ecru-one.vercel.app',
+        config.send_email_url as string,
         emailData,
       )
     })
@@ -283,6 +350,7 @@ const deleteUser = async (id: string) => {
 }
 
 const AuthServices = {
+  createModerator,
   loginUser,
   sendOtp,
   verifyOtp,

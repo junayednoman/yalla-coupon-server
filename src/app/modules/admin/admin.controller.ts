@@ -22,9 +22,9 @@ const updateAdminProfile = handleAsyncRequest(async (req: any, res) => {
 });
 
 const updateAdminProfileImage = handleAsyncRequest(async (req: any, res) => {
-  const image = req.file?.location;
+  const file = req.file
   const email = req.user.email;
-  const result = await adminServices.updateAdminProfileImage(email, image);
+  const result = await adminServices.updateAdminProfileImage(email, file);
   successResponse(res, {
     message: "Profile image updated successfully!",
     data: result,

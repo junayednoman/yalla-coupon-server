@@ -4,6 +4,7 @@ import {
   changePasswordValidationSchema,
   emailValidationSchema,
   loginUserValidationSchema,
+  moderatorZodSchema,
   resetForgottenPasswordSchema,
   verifyOtpSchema,
 } from "./auth.validation";
@@ -14,10 +15,17 @@ import { userRoles } from "../../constants/global.constant";
 const authRoutes = Router();
 
 authRoutes.post(
+  "/moderators/signup",
+  handleZodValidation(moderatorZodSchema),
+  AuthController.createModerator
+);
+
+authRoutes.post(
   "/login",
   handleZodValidation(loginUserValidationSchema),
   AuthController.loginUser
 );
+
 authRoutes.post(
   "/logout",
   authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),

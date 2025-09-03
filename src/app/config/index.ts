@@ -21,4 +21,5 @@ export default {
   aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
   aws_region: process.env.AWS_REGION,
   aws_s3_bucket_name: process.env.AWS_S3_BUCKET_NAME,
+  send_email_url: process.env.SEND_EMAIL_URL
 };

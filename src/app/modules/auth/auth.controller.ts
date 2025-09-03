@@ -3,6 +3,15 @@ import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { successResponse } from "../../utils/successResponse";
 import AuthServices from "./auth.service";
 
+const createModerator = handleAsyncRequest(async (req: any, res) => {
+  const result = await AuthServices.createModerator(req.body);
+  successResponse(res, {
+    message: "Moderator created successfully!",
+    data: result,
+    status: 201,
+  });
+});
+
 const loginUser = handleAsyncRequest(async (req, res) => {
   const payload = req.body;
   const result = await AuthServices.loginUser(payload);
@@ -101,6 +110,7 @@ const deleteUser = handleAsyncRequest(async (req: any, res) => {
 });
 
 const AuthController = {
+  createModerator,
   loginUser,
   sendOtp,
   verifyOtp,
