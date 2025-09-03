@@ -8,6 +8,7 @@ import categoryRoutes from "../modules/category/category.routes";
 import { userRoutes } from "../modules/user/user.routes";
 import { editorRoutes } from "../modules/editor/editor.routes";
 import { viewerRoutes } from "../modules/viewer/viewer.routes";
+import { storeRoutes } from "../modules/store/store.routes";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ const apiRoutes = [
   { path: "/categories", route: categoryRoutes },
   { path: "/editors", route: editorRoutes },
   { path: "/viewers", route: viewerRoutes },
+  { path: "/stores", route: storeRoutes },
 
 
 

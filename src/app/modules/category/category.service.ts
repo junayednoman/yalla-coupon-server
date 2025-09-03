@@ -44,7 +44,7 @@ const deleteCategory = async (id: string) => {
   if (!existing) {
     throw new AppError(400, "Invalid category ID!");
   }
-  throw new AppError(400, "check if any asset is assigned to this category");
+
   const deleted = await Category.findByIdAndDelete(id);
   return deleted;
 };
