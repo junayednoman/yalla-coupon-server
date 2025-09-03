@@ -5,17 +5,17 @@ import { userRoles } from "../../constants/global.constant";
 
 const notificationRoutes = Router();
 
-notificationRoutes.post("/", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), notificationController.createNotification)
-notificationRoutes.get("/", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), notificationController.getAllNotifications)
+notificationRoutes.post("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.createNotification)
+notificationRoutes.get("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.getAllNotifications)
 
 notificationRoutes.patch(
-  "/mark-all-as-read", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]),
+  "/mark-all-as-read", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   notificationController.markAllAsRead)
 
-notificationRoutes.get("/unread-count", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), notificationController.getUnreadNotificationCount)
+notificationRoutes.get("/unread-count", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.getUnreadNotificationCount)
 
-notificationRoutes.delete("/:id", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), notificationController.deleteSingleNotification)
+notificationRoutes.delete("/:id", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.deleteSingleNotification)
 
-notificationRoutes.delete("/", authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), notificationController.deleteMyNotifications)
+notificationRoutes.delete("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.deleteMyNotifications)
 
 export default notificationRoutes;

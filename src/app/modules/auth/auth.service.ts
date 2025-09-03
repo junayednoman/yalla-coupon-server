@@ -12,23 +12,11 @@ import mongoose from "mongoose";
 import axios from "axios";
 
 const loginUser = async (payload: { email: string; password: string, isRemember: boolean }) => {
-  const folderPath = 'uploads';
-  const files = fs.readdirSync(folderPath);
-
-  if (files.length > 0) {
-    files.forEach(file => {
-      const filePath = path.join(folderPath, file);
-      if (fs.lstatSync(filePath).isFile()) {
-        fs.unlinkSync(filePath);
-      }
-    });
-  }
-
   const user = await isUserExist(payload.email);
 
   if (!user.isAccountVerified) throw new AppError(400, "Please, verify your account before logging in!");
 
-  if (user.needsPasswordChange) throw new AppError(400, "Please, change your password before logging in!");
+  if (user.needsPasswordChange) throw new AppError(400, "Please, reset your password before logging in!");
 
   // Compare the password
   const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
@@ -201,6 +189,19 @@ const resetForgottenPassword = async (payload: {
       )
     })
   }
+
+  // delete uploaded files
+  const folderPath = 'uploads';
+  const files = fs.readdirSync(folderPath);
+
+  if (files.length > 0) {
+    files.forEach(file => {
+      const filePath = path.join(folderPath, file);
+      if (fs.lstatSync(filePath).isFile()) {
+        fs.unlinkSync(filePath);
+      }
+    });
+  }
 };
 
 const changePassword = async (email: string, payload: {
@@ -265,16 +266,7 @@ const getNewAccessToken = async (token: string) => {
   return { accessToken }
 }
 
-const changeUserStatus = async (id: string) => {
-  const user = await Auth.findById(id);
-  if (!user) throw new AppError(400, "Invalid user id!");
-
-  return await Auth.findByIdAndUpdate(user._id, { isBlocked: user.isBlocked ? false : true }, { new: true });
-};
-
 const deleteUser = async (id: string) => {
-  //=====================  DELETE ALL THE RELATED DATA  ========================== \\
-  throw new AppError(400, "check if any asset is assigned to this user");
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
@@ -297,7 +289,6 @@ const AuthServices = {
   resetForgottenPassword,
   changePassword,
   getNewAccessToken,
-  changeUserStatus,
   deleteUser
 };
 

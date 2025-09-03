@@ -20,7 +20,7 @@ authRoutes.post(
 );
 authRoutes.post(
   "/logout",
-  authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   AuthController.logOut
 );
 authRoutes.post(
@@ -40,7 +40,7 @@ authRoutes.post(
 );
 authRoutes.post(
   "/change-password",
-  authVerify([userRoles.admin, userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   handleZodValidation(changePasswordValidationSchema),
   AuthController.changePassword
 );
@@ -48,11 +48,6 @@ authRoutes.get(
   "/refresh-token",
   AuthController.getNewAccessToken
 );
-authRoutes.patch(
-  "/change-status/:id",
-  authVerify([userRoles.admin]),
-  AuthController.changeUserStatus
-)
-authRoutes.delete("/", authVerify([userRoles.petOwner, userRoles.careBuddy, userRoles.businessPartner]), AuthController.deleteUser)
+authRoutes.delete("/", authVerify([userRoles.editor, userRoles.viewer, userRoles.user]), AuthController.deleteUser)
 
 export default authRoutes;

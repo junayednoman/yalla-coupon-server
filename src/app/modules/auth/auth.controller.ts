@@ -17,7 +17,7 @@ const loginUser = handleAsyncRequest(async (req, res) => {
 
   if (config.node_env === 'production') cookieOptions.sameSite = 'none';
 
-  res.cookie('constructionRefreshToken', refreshToken, cookieOptions);
+  res.cookie('yallaCouponRefreshToken', refreshToken, cookieOptions);
 
   successResponse(res, {
     message: "User logged in successfully!",
@@ -27,7 +27,7 @@ const loginUser = handleAsyncRequest(async (req, res) => {
 
 const logOut = handleAsyncRequest(async (req, res) => {
   const refreshToken = req?.cookies?.refreshToken;
-  if (refreshToken) res.clearCookie('constructionRefreshToken');
+  if (refreshToken) res.clearCookie('yallaCouponRefreshToken');
 
   successResponse(res, {
     message: "User logged out successfully!",
@@ -92,17 +92,6 @@ const getNewAccessToken = handleAsyncRequest(async (req, res) => {
   });
 });
 
-const changeUserStatus = handleAsyncRequest(async (req, res) => {
-  const id = req.params.id;
-  const result = await AuthServices.changeUserStatus(id);
-  const refreshToken = req?.cookies?.refreshToken;
-  if (refreshToken) res.clearCookie('constructionRefreshToken');
-  successResponse(res, {
-    message: "User account status changed successfully!",
-    data: result,
-  });
-});
-
 const deleteUser = handleAsyncRequest(async (req: any, res) => {
   const result = await AuthServices.deleteUser(req.user.id);
   successResponse(res, {
@@ -119,7 +108,6 @@ const AuthController = {
   changePassword,
   getNewAccessToken,
   logOut,
-  changeUserStatus,
   deleteUser
 };
 

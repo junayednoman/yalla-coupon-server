@@ -4,28 +4,16 @@ import adminRoutes from "../modules/admin/admin.routes";
 import { legalRoutes } from "../modules/legal/legal.routes";
 import notificationRoutes from "../modules/notification/notification.routes";
 import { uploadFileRoutes } from "../modules/uploadFile/uploadFile.routes";
-import { petOwnerRoutes } from "../modules/petOwner/petOwner.routes";
-import { businessPartnerRoutes } from "../modules/businessPartner/businessPartner.routes";
 import categoryRoutes from "../modules/category/category.routes";
-import storyRoutes from "../modules/story/story.routes";
-import postRoutes from "../modules/post/post.routes";
-import { commentRoutes } from "../modules/comment/comment.routes";
-import { reportRoutes } from "../modules/reports/reports.routes";
-import reelsRoutes from "../modules/reels/reels.routes";
+import { userRoutes } from "../modules/user/user.routes";
 
 const router = Router();
 
 const apiRoutes = [
   { path: "/auth", route: authRoutes },
   { path: "/admins", route: adminRoutes },
-  { path: "/pet-owners", route: petOwnerRoutes },
-  { path: "/business-partners", route: businessPartnerRoutes },
+  { path: "/users", route: userRoutes },
   { path: "/categories", route: categoryRoutes },
-  { path: "/stories", route: storyRoutes },
-  { path: "/posts", route: postRoutes },
-  { path: "/comments", route: commentRoutes },
-  { path: "/reports", route: reportRoutes },
-  { path: "/reels", route: reelsRoutes },
 
 
 

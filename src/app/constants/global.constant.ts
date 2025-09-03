@@ -1,6 +1,6 @@
 export const userRoles = {
   admin: 'Admin',
-  petOwner: 'PetOwner',
-  careBuddy: 'CareBuddy',
-  businessPartner: 'BusinessPartner',
+  editor: 'Editor',
+  viewer: 'Viewer',
+  user: 'User',
 }
