@@ -14,6 +14,7 @@ import axios from "axios";
 import { userRoles } from "../../constants/global.constant";
 import Editor from "../editor/editor.model";
 import { TModeratorSignUp } from "./auth.validation";
+import Viewer from "../viewer/viewer.model";
 
 const createModerator = async (payload: TModeratorSignUp) => {
   const auth = await Auth.findOne({ email: payload.email, isAccountVerified: true });
@@ -27,8 +28,7 @@ const createModerator = async (payload: TModeratorSignUp) => {
     if (payload.role === userRoles.editor) {
       moderator = await Editor.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
     } else if (payload.role === userRoles.viewer) {
-      throw new AppError(400, "Change model to create viewer!");
-      moderator = await Editor.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
+      moderator = await Viewer.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
     }
 
     const password = generateRandomString();

@@ -6,6 +6,8 @@ import notificationRoutes from "../modules/notification/notification.routes";
 import { uploadFileRoutes } from "../modules/uploadFile/uploadFile.routes";
 import categoryRoutes from "../modules/category/category.routes";
 import { userRoutes } from "../modules/user/user.routes";
+import { editorRoutes } from "../modules/editor/editor.routes";
+import { viewerRoutes } from "../modules/viewer/viewer.routes";
 
 const router = Router();
 
@@ -14,6 +16,8 @@ const apiRoutes = [
   { path: "/admins", route: adminRoutes },
   { path: "/users", route: userRoutes },
   { path: "/categories", route: categoryRoutes },
+  { path: "/editors", route: editorRoutes },
+  { path: "/viewers", route: viewerRoutes },
 
 
 

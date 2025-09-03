@@ -1,45 +1,45 @@
 import { Router } from "express";
-import editorController from "./editor.controller";
+import viewerController from "./viewer.controller";
 import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import authVerify from "../../middlewares/authVerify";
 import { userRoles } from "../../constants/global.constant";
-import { updateEditorZod } from "./editor.validation";
+import { updateViewerZod } from "./viewer.validation";
 import { upload } from "../../utils/multerS3Uploader";
 
 const router = Router();
 
 router.put(
   "/",
-  authVerify([userRoles.editor]),
+  authVerify([userRoles.viewer]),
   upload.single("image"),
-  handleZodValidation(updateEditorZod, {
+  handleZodValidation(updateViewerZod, {
     formData: true
   }),
-  editorController.updateProfile
+  viewerController.updateProfile
 );
 
 router.get(
   "/profile",
-  authVerify([userRoles.editor]),
-  editorController.getProfile
+  authVerify([userRoles.viewer]),
+  viewerController.getProfile
 );
 
 router.get(
   "/",
   authVerify([userRoles.admin]),
-  editorController.getAllEditors
+  viewerController.getAllViewers
 );
 
 router.get(
   "/:id",
-  authVerify([userRoles.admin, userRoles.editor]),
-  editorController.getSingleEditor
+  authVerify([userRoles.admin, userRoles.viewer]),
+  viewerController.getSingleViewer
 );
 
 router.patch(
   "/:id",
   authVerify([userRoles.admin]),
-  editorController.changeEditorStatus
+  viewerController.changeViewerStatus
 );
 
-export const editorRoutes = router;
+export const viewerRoutes = router;

@@ -38,13 +38,12 @@ const getSingleEditor = handleAsyncRequest(async (req: any, res) => {
 const changeEditorStatus = handleAsyncRequest(async (req: any, res) => {
   const result = await editorService.changeEditorStatus(req.params.id);
   successResponse(res, {
-    message: "Editor status changed successfully!",
+    message: `Editor ${result?.isBlocked ? "blocked" : "unblocked"} successfully!`,
     data: result,
   });
 });
 
 const editorController = {
-  createModerator,
   updateProfile,
   getProfile,
   getAllEditors,
