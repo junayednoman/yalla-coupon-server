@@ -1,7 +1,7 @@
 class AggregationBuilder {
   private pipeline: any[];
   private query: Record<string, any>;
-  private model: any; // Reference to the Mongoose model
+  private model: any;
   private prePaginatePipeline: any[];
 
   constructor(model: any, initialPipeline: any[] = [], query: Record<string, any> = {}) {

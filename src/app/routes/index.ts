@@ -9,6 +9,7 @@ import { userRoutes } from "../modules/user/user.routes";
 import { editorRoutes } from "../modules/editor/editor.routes";
 import { viewerRoutes } from "../modules/viewer/viewer.routes";
 import { storeRoutes } from "../modules/store/store.routes";
+import { couponRoutes } from "../modules/coupon/coupon.routes";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ const apiRoutes = [
   { path: "/editors", route: editorRoutes },
   { path: "/viewers", route: viewerRoutes },
   { path: "/stores", route: storeRoutes },
+  { path: "/coupons", route: couponRoutes },
 
 
 
