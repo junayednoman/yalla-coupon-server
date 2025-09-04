@@ -9,8 +9,7 @@ export interface ICoupon {
   realUses: number;
   code: string;
   title: string;
-  description: string;
-  type: string;
+  subtitle: string;
   validity: string;
   applicableUserType: "FIRST_TIME" | "REPEAT" | "BOTH";
   howToUse: string[];

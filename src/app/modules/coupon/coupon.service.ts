@@ -18,7 +18,7 @@ const createCoupon = async (payload: ICoupon) => {
 };
 
 const getAllCoupons = async (query: Record<string, any>) => {
-  const searchableFields = ["categories.name", "store.name", "title", "description", "howToUse", "terms"];
+  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
 
   const pipeline = [
     {
@@ -52,7 +52,7 @@ const getAllCoupons = async (query: Record<string, any>) => {
 };
 
 const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) => {
-  const searchableFields = ["title", "description", "howToUse", "terms", "code"];
+  const searchableFields = ["title", "subtitle", "howToUse", "terms", "code"];
   query.store = storeId
   const couponQuery = new QueryBuilder(Coupon.find(), query)
     .search(searchableFields)

@@ -12,8 +12,7 @@ const couponSchema = new Schema<ICoupon>(
     realUses: { type: Number, min: 0 },
     code: { type: String, required: true },
     title: { type: String, required: true },
-    description: { type: String },
-    type: { type: String, required: true },
+    subtitle: { type: String, required: true },
     validity: { type: String, required: true },
     applicableUserType: {
       type: String,
