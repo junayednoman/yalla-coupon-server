@@ -4,7 +4,7 @@ export type TNotificationPayload = {
   receiver: ObjectId;
   title: string;
   body: string;
-  image?: string;
-  link?: string;
+  coupon: ObjectId;
   hasRead?: boolean;
+  countries: string[];
 };

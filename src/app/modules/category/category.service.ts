@@ -21,8 +21,13 @@ const getAllCategories = async (query: Record<string, any>) => {
     .paginate()
     .selectFields();
 
-  const meta = await categoryQuery.countTotal();
+  const total = await categoryQuery.countTotal();
   const result = await categoryQuery.queryModel;
+  const meta = {
+    total,
+    limit: query.limit || 10,
+    page: query.page || 1
+  }
   return { data: result, meta };
 };
 

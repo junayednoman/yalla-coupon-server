@@ -1,22 +1,64 @@
-import { ObjectId } from "mongoose";
+import { ObjectId, PipelineStage } from "mongoose";
 import Notification from "./notification.model";
 import generateOTP from "../../utils/generateOTP";
 import QueryBuilder from "../../classes/queryBuilder";
+import Coupon from "../coupon/coupon.model";
+import { TNotificationPayload } from "./notification.interface";
+import Auth from "../auth/auth.model";
+import { userRoles } from "../../constants/global.constant";
+
+const sendAlert = async (payload: Partial<TNotificationPayload>) => {
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        role: userRoles.user
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user"
+      }
+    }
+  ];
+
+  if (payload.countries!.length > 0 && !payload.countries!.includes("all")) {
+    pipeline.push({
+      $match: {
+        "user.country": {
+          $in: payload.countries
+        }
+      }
+    })
+  }
+  const users = await Auth.aggregate(pipeline);
+
+  for (const user of users) {
+    const notificationData = {
+      receiver: user._id, ...payload
+    }
+    await Notification.create(notificationData);
+  }
+}
 
 const createNotification = async (id: string) => {
   const otp = generateOTP()
+  const coupon = await Coupon.find()
   const notificationData = {
     receiver: id as unknown as ObjectId,
     title: `New Notification-${otp}`,
     body: 'You have a new notification',
+    coupon: coupon[0]._id,
+    countries: ["all"]
   }
   const result = await Notification.create(notificationData);
   return result;
 }
 
 const getAllNotifications = async (query: Record<string, any>, id: string) => {
-  const searchableFields = [
-    "title",];
+  const searchableFields = ["title",];
   const userQuery = new QueryBuilder(
     Notification.find({ receiver: id }),
     query
@@ -53,4 +95,4 @@ const deleteMyNotifications = async (id: string) => {
   return result;
 }
 
-export const notificationServices = { getAllNotifications, markAllAsRead, createNotification, getUnreadNotificationCount, deleteSingleNotification, deleteMyNotifications };
+export const notificationServices = { getAllNotifications, markAllAsRead, createNotification, getUnreadNotificationCount, deleteSingleNotification, deleteMyNotifications, sendAlert };

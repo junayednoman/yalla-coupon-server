@@ -100,7 +100,8 @@ class AggregationBuilder {
     const totalPipeline = [...this.prePaginatePipeline];
     totalPipeline.push({ $count: 'total' });
     const result = await this.model.aggregate(totalPipeline);
-    return { total: result[0]?.total || 0 };
+    const total = result[0]?.total || 0
+    return total;
   }
 
   async execute() {

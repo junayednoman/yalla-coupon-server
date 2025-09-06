@@ -5,7 +5,10 @@ import { userRoles } from "../../constants/global.constant";
 
 const notificationRoutes = Router();
 
+notificationRoutes.post("/send-alert", authVerify([userRoles.admin, userRoles.editor]), notificationController.sendAlert)
+
 notificationRoutes.post("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.createNotification)
+
 notificationRoutes.get("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.getAllNotifications)
 
 notificationRoutes.patch(

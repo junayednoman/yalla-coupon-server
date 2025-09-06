@@ -79,8 +79,14 @@ const getAllCoupons = async (query: Record<string, any>, userId: string) => {
     .paginate()
     .selectFields();
 
-  const meta = await couponQuery.countTotal();
+  const total = await couponQuery.countTotal();
   const result = await couponQuery.execute();
+
+  const meta = {
+    total,
+    limit: query.limit || 10,
+    page: query.page || 1
+  }
   return { data: result, meta };
 };
 

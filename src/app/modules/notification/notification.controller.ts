@@ -1,10 +1,22 @@
+import { TRequest } from "../../interface/global.interface";
 import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { successResponse } from "../../utils/successResponse";
 import { notificationServices } from "./notification.service";
 
+const sendAlert = handleAsyncRequest(
+  async (req: TRequest, res) => {
+    const result = await notificationServices.sendAlert(req.body);
+    successResponse((res), {
+      message: "Alert sent successfully!",
+      status: 201,
+      data: result
+    })
+  }
+)
+
 const createNotification = handleAsyncRequest(
-  async (req: any, res) => {
-    const id = req?.user.id;
+  async (req: TRequest, res) => {
+    const id = req.user!.id;
     const result = await notificationServices.createNotification(id);
     successResponse((res), {
       message: "Notifications created successfully!",
@@ -14,9 +26,9 @@ const createNotification = handleAsyncRequest(
 )
 
 const getAllNotifications = handleAsyncRequest(
-  async (req: any, res) => {
+  async (req: TRequest, res) => {
     const query = req.query;
-    const id = req.user.id;
+    const id = req.user!.id;
     const result = await notificationServices.getAllNotifications(query, id);
     successResponse((res), {
       message: "Notifications retrieved successfully!",
@@ -26,8 +38,8 @@ const getAllNotifications = handleAsyncRequest(
 )
 
 const markAllAsRead = handleAsyncRequest(
-  async (req: any, res) => {
-    const id = req.user.id;
+  async (req: TRequest, res) => {
+    const id = req.user!.id;
     const result = await notificationServices.markAllAsRead(id);
     successResponse((res), {
       message: "All notification marked as read successfully!",
@@ -37,8 +49,8 @@ const markAllAsRead = handleAsyncRequest(
 )
 
 const getUnreadNotificationCount = handleAsyncRequest(
-  async (req: any, res) => {
-    const id = req.user.id;
+  async (req: TRequest, res) => {
+    const id = req.user!.id;
     const result = await notificationServices.getUnreadNotificationCount(id);
     successResponse((res), {
       message: "Unread notification count retrieved successfully!",
@@ -48,7 +60,7 @@ const getUnreadNotificationCount = handleAsyncRequest(
 )
 
 const deleteSingleNotification = handleAsyncRequest(
-  async (req: any, res) => {
+  async (req: TRequest, res) => {
     const id = req.params.id;
     const result = await notificationServices.deleteSingleNotification(id);
     successResponse((res), {
@@ -59,8 +71,8 @@ const deleteSingleNotification = handleAsyncRequest(
 )
 
 const deleteMyNotifications = handleAsyncRequest(
-  async (req: any, res) => {
-    const id = req.user.id;
+  async (req: TRequest, res) => {
+    const id = req.user!.id;
     const result = await notificationServices.deleteMyNotifications(id);
     successResponse((res), {
       message: "Notifications deleted successfully!",
@@ -70,6 +82,7 @@ const deleteMyNotifications = handleAsyncRequest(
 )
 
 export const notificationController = {
+  sendAlert,
   getAllNotifications,
   markAllAsRead,
   createNotification,

@@ -5,8 +5,8 @@ const notificationSchema = new mongoose.Schema<TNotificationPayload>({
   receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'Auth', required: true },
   title: { type: String, required: true },
   body: { type: String, required: true },
-  image: { type: String, default: null },
-  link: { type: String },
+  coupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', required: true },
+  countries: { type: [String], required: true },
   hasRead: { type: Boolean, default: false }
 }, { timestamps: true });
 
