@@ -5,6 +5,7 @@ import Store from "../store/store.model";
 import Category from "../category/category.model";
 import AggregationBuilder from "../../classes/AggregationBuilder";
 import QueryBuilder from "../../classes/queryBuilder";
+import mongoose from "mongoose";
 
 const createCoupon = async (payload: ICoupon) => {
   const store = await Store.findById(payload.store);
@@ -17,7 +18,7 @@ const createCoupon = async (payload: ICoupon) => {
   return result;
 };
 
-const getAllCoupons = async (query: Record<string, any>) => {
+const getAllCoupons = async (query: Record<string, any>, userId: string) => {
   const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
 
   const pipeline = [
@@ -36,7 +37,39 @@ const getAllCoupons = async (query: Record<string, any>) => {
         foreignField: "_id",
         as: "categories",
       }
-    }
+    },
+
+    {
+      $lookup: {
+        from: "favorites",
+        let: { couponId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$coupon", "$$couponId"] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
+                ],
+              },
+            },
+          },
+        ],
+        as: "favoriteDocs",
+      },
+    },
+    {
+      $addFields: {
+        isFavorite: {
+          $cond: {
+            if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    { $project: { favoriteDocs: 0 } },
   ]
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)

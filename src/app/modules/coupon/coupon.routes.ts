@@ -16,7 +16,7 @@ router.post(
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getAllCoupons
 );
 

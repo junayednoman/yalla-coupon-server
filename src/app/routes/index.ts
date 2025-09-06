@@ -11,6 +11,8 @@ import { viewerRoutes } from "../modules/viewer/viewer.routes";
 import { storeRoutes } from "../modules/store/store.routes";
 import { couponRoutes } from "../modules/coupon/coupon.routes";
 import { bannerRoutes } from "../modules/banner/banner.routes";
+import { activityRoutes } from "../modules/activity/activity.routes";
+import { favoriteRoutes } from "../modules/favorite/favorite.routes";
 
 const router = Router();
 
@@ -24,7 +26,8 @@ const apiRoutes = [
   { path: "/stores", route: storeRoutes },
   { path: "/coupons", route: couponRoutes },
   { path: "/banners", route: bannerRoutes },
-
+  { path: "/activities", route: activityRoutes },
+  { path: "/favorites", route: favoriteRoutes },
 
 
 

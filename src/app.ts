@@ -6,11 +6,13 @@ import routeNotFound from "./app/middlewares/routeNotFound";
 import cookieParser from "cookie-parser";
 const app = express();
 
-app.use(cors({
-  origin: ["http://10.10.10.17:3000", "http://localhost:3000"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  }),
+);
 
 app.use(express.json());
 // Use cookie-parser middleware
