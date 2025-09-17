@@ -104,7 +104,23 @@ const getProfile = async (userId: string) => {
 const getAllUsers = async (query: Record<string, any>) => {
   const searchableFields = ["name", "image", "email", "phone", "country"];
 
-  const categoryQuery = new QueryBuilder(User.find(), query)
+  const baseQuery = User.find();
+
+  // handle createdAt=YYYY-MM
+  if (query.createdAt) {
+    const [year, month] = query.createdAt.split("-").map(Number);
+
+    if (year && month) {
+      const start = new Date(year, month - 1, 1);          // 1st day of the month
+      const end = new Date(year, month, 1);                // 1st day of next month
+
+      baseQuery.where({
+        createdAt: { $gte: start, $lt: end },
+      });
+    }
+  }
+
+  const categoryQuery = new QueryBuilder(baseQuery, query)
     .search(searchableFields)
     .filter()
     .sort()

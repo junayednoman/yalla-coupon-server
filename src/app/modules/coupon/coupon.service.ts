@@ -18,10 +18,19 @@ const createCoupon = async (payload: ICoupon) => {
   return result;
 };
 
-const getAllCoupons = async (query: Record<string, any>, userId: string) => {
-  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
+const getAllCoupons = async (query: Record<string, any>, userId: string, userRole: "Admin" | "Editor" | "Viewer" | "User") => {
 
-  const pipeline = [
+  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
+  const pipeline = [];
+  if (userRole === "User") {
+    pipeline.push({
+      $match: {
+        status: "active"
+      }
+    })
+  }
+
+  pipeline.push(
     {
       $lookup: {
         from: "stores",
@@ -70,7 +79,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string) => {
       },
     },
     { $project: { favoriteDocs: 0 } },
-  ]
+  );
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
@@ -87,6 +96,20 @@ const getAllCoupons = async (query: Record<string, any>, userId: string) => {
     limit: query.limit || 10,
     page: query.page || 1
   }
+
+  if (userRole !== "User") {
+    const total = await Coupon.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalCopies: { $sum: "$realUses" }
+        }
+      }
+    ])
+
+    return { data: result, meta, totalCopies: total[0]?.totalCopies || 10 };
+  }
+
   return { data: result, meta };
 };
 

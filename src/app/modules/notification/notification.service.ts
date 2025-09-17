@@ -33,6 +33,7 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
       }
     })
   }
+
   const users = await Auth.aggregate(pipeline);
 
   for (const user of users) {

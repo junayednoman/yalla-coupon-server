@@ -13,6 +13,7 @@ import { couponRoutes } from "../modules/coupon/coupon.routes";
 import { bannerRoutes } from "../modules/banner/banner.routes";
 import { activityRoutes } from "../modules/activity/activity.routes";
 import { favoriteRoutes } from "../modules/favorite/favorite.routes";
+import { summaryRoutes } from "../modules/summary/summary.routes";
 
 const router = Router();
 
@@ -28,11 +29,9 @@ const apiRoutes = [
   { path: "/banners", route: bannerRoutes },
   { path: "/activities", route: activityRoutes },
   { path: "/favorites", route: favoriteRoutes },
-
-
-
   { path: "/legal", route: legalRoutes },
   { path: "/notifications", route: notificationRoutes },
+  { path: "/summaries", route: summaryRoutes },
   { path: "/upload-files", route: uploadFileRoutes },
 ];
 
