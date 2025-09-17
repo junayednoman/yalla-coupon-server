@@ -7,7 +7,6 @@ import { uploadToS3 } from "../../utils/multerS3Uploader";
 import deleteLocalFile from "../../utils/deleteLocalFile";
 import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import Coupon from "../coupon/coupon.model";
-
 const createBanner = async (payload: IBanner, file: TFile) => {
   const coupon = await Coupon.findById(payload.coupon.toString());
   if (!coupon) {
@@ -31,12 +30,18 @@ const getAllBanners = async (query: Record<string, any>) => {
     .selectFields()
 
   const meta = await bannerQuery.countTotal();
-  const result = await bannerQuery.queryModel;
+  const result = await bannerQuery.queryModel.populate("coupon", "code");
   return { data: result, meta };
 };
 
 const getSingleBanner = async (bannerId: string) => {
-  const banner = await Banner.findById(bannerId).populate("coupon");
+  const banner = await Banner.findById(bannerId).populate([
+    {
+      path: "coupon", populate: {
+        path: "store",
+      }
+    },
+  ]);
   return banner;
 };
 

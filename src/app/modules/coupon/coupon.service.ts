@@ -81,7 +81,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
     { $project: { favoriteDocs: 0 } },
   );
 
-  const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
+const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()

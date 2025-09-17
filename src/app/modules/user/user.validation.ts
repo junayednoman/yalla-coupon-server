@@ -2,9 +2,9 @@ import { z } from "zod";
 
 // Define Zod schema for User
 export const userZodSchema = z.object({
-  name: z.string().optional(),
   email: z.string().email("Invalid email address").min(1, "Email is required"),
   phone: z.string().optional(),
+  password: z.string().min(1, "Password is required"),
   country: z.string().min(1, "Country is required"),
 });
 
