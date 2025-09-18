@@ -53,6 +53,7 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
 
     await Auth.findOneAndUpdate({ email: payload.email }, authData, { upsert: true, session });
 
+    if (!config.send_email_url) throw new AppError(500, "Email service not configured");
     if (user) {
       // send otp
       const emailTemplatePath = "./src/app/emailTemplates/otp.html";
