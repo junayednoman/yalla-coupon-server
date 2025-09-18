@@ -90,7 +90,6 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
 
 const updateProfile = async (userId: string, payload: Partial<IUser>, file?: TFile) => {
   const auth = await Auth.findById(userId).populate("user");
-
   if (file) payload.image = await uploadToS3(file);
   const result = await User.findOneAndUpdate({ _id: (auth?.user as any)?._id }, payload, { new: true });
   if ((auth?.user as any).image && payload.image && result) await deleteFileFromS3((auth?.user as any).image)

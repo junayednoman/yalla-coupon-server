@@ -8,7 +8,7 @@ const userSchema = new Schema<IUser>(
     phone: { type: String, default: null },
     image: { type: String, default: null },
     country: { type: String, required: true },
-    copies: { type: Number, required: true, min: 0 },
+    copies: { type: Number, default: 0 },
     isBlocked: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
