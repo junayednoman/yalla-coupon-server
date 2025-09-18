@@ -5,13 +5,15 @@ import { Server as HttpServer } from "http";
 import createAdmin from "./app/utils/createAdmin";
 // import initializeSocket from "./app/socket";
 
-let server: HttpServer;
+// const server: HttpServer;
 const socketServer = new HttpServer();
+
+console.log('server, config', socketServer, config);
 
 async function main() {
   try {
     await mongoose.connect(config.database_url as string);
-    server = app.listen(Number(config.port), config.ip as string, () => {
+    app.listen(Number(config.port), config.ip as string, () => {
       console.log(`🐶 Yalla Coupon server is running on port: ${config.port}`);
     });
 
@@ -31,20 +33,20 @@ main();
 // create default admin user
 createAdmin();
 
-process.on("unhandledRejection", () => {
-  console.log(`unhandledRejection is detected, server shutting down... 😞`);
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  }
-  if (socketServer) socketServer.close(() => {
-    process.exit(1);
-  });
-  process.exit(1);
-});
+// process.on("unhandledRejection", () => {
+//   console.log(`unhandledRejection is detected, server shutting down... 😞`);
+//   if (server) {
+//     server.close(() => {
+//       process.exit(1);
+//     });
+//   }
+//   if (socketServer) socketServer.close(() => {
+//     process.exit(1);
+//   });
+//   process.exit(1);
+// });
 
-process.on("uncaughtException", () => {
-  console.log(`uncaughtException is detected, server shutting down... 😞`);
-  process.exit();
-});
+// process.on("uncaughtException", () => {
+//   console.log(`uncaughtException is detected, server shutting down... 😞`);
+//   process.exit();
+// });
