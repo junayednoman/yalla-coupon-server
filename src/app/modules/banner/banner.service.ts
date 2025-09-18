@@ -29,8 +29,13 @@ const getAllBanners = async (query: Record<string, any>) => {
     .paginate()
     .selectFields()
 
-  const meta = await bannerQuery.countTotal();
+  const total = await bannerQuery.countTotal();
   const result = await bannerQuery.queryModel.populate("coupon", "code");
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
   return { data: result, meta };
 };
 

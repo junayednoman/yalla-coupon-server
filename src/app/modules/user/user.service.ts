@@ -127,8 +127,13 @@ const getAllUsers = async (query: Record<string, any>) => {
     .paginate()
     .selectFields();
 
-  const meta = await categoryQuery.countTotal();
+  const total = await categoryQuery.countTotal();
   const result = await categoryQuery.queryModel;
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
   return { data: result, meta };
 };
 

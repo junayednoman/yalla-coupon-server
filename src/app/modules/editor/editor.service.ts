@@ -32,8 +32,13 @@ const getAllEditors = async (query: Record<string, any>) => {
     .paginate()
     .selectFields();
 
-  const meta = await editorQuery.countTotal();
+  const total = await editorQuery.countTotal();
   const result = await editorQuery.queryModel;
+  
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
   return { data: result, meta };
 };
 

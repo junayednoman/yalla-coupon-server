@@ -32,8 +32,13 @@ const getAllViewers = async (query: Record<string, any>) => {
     .paginate()
     .selectFields();
 
-  const meta = await viewerQuery.countTotal();
+  const total = await viewerQuery.countTotal();
   const result = await viewerQuery.queryModel;
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
   return { data: result, meta };
 };
 

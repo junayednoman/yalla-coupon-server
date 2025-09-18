@@ -81,7 +81,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
     { $project: { favoriteDocs: 0 } },
   );
 
-const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
+  const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()
@@ -123,8 +123,13 @@ const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) 
     .paginate()
     .selectFields();
 
-  const meta = await couponQuery.countTotal();
+  const total = await couponQuery.countTotal();
   const result = await couponQuery.queryModel.populate("store");
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
   return { data: result, meta };
 }
 
