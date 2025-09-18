@@ -6,7 +6,7 @@ const userSchema = new Schema<IUser>(
     name: { type: String },
     email: { type: String, required: true, unique: true },
     phone: { type: String, default: null },
-    image: { type: String },
+    image: { type: String, default: null },
     country: { type: String, required: true },
     copies: { type: Number, required: true, min: 0 },
     isBlocked: { type: Boolean, default: false },
