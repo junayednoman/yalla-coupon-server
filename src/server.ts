@@ -8,7 +8,7 @@ import createAdmin from "./app/utils/createAdmin";
 // const server: HttpServer;
 const socketServer = new HttpServer();
 
-console.log('server, config', socketServer, config);
+console.log('server', socketServer);
 
 async function main() {
   try {

@@ -86,7 +86,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
     .filter()
     .sort()
     .paginate()
-    .selectFields();
+    // .selectFields();
 
   const total = await couponQuery.countTotal();
   const result = await couponQuery.execute();
