@@ -28,7 +28,7 @@ const getAllFavorites = async (query: Record<string, any>) => {
   const total = await favoriteQuery.countTotal();
   const result = await favoriteQuery.queryModel.populate([
     {
-      path: "coupon", select: "title validation fakeUses code",
+      path: "coupon", select: "title validity fakeUses code",
       populate: { path: "store", select: "name image" }
     },
   ]);
