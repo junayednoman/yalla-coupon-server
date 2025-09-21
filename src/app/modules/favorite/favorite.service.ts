@@ -2,9 +2,14 @@ import Favorite from "./favorite.model";
 import { AppError } from "../../classes/appError";
 import { IFavorite } from "./favorite.interface";
 import QueryBuilder from "../../classes/queryBuilder";
+import Coupon from "../coupon/coupon.model";
 
 const addOrRemoveFavorite = async (payload: IFavorite) => {
   const { user, coupon } = payload;
+  const couponData = await Coupon.findById(payload.coupon);
+
+  if (!couponData) throw new AppError(400, "Invalid coupon id");
+
   const existingFavorite = await Favorite.findOne({ user, coupon });
 
   if (existingFavorite) {
@@ -18,7 +23,8 @@ const addOrRemoveFavorite = async (payload: IFavorite) => {
   }
 };
 
-const getAllFavorites = async (query: Record<string, any>) => {
+const getAllFavorites = async (query: Record<string, any>, id: string) => {
+  query.user = id;
   const favoriteQuery = new QueryBuilder(Favorite.find(), query)
     .filter()
     .sort()

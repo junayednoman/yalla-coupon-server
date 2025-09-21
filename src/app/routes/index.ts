@@ -14,6 +14,7 @@ import { bannerRoutes } from "../modules/banner/banner.routes";
 import { activityRoutes } from "../modules/activity/activity.routes";
 import { favoriteRoutes } from "../modules/favorite/favorite.routes";
 import { summaryRoutes } from "../modules/summary/summary.routes";
+import { feedbackRoutes } from "../modules/feedback/feedback.routes";
 
 const router = Router();
 
@@ -32,6 +33,7 @@ const apiRoutes = [
   { path: "/legal", route: legalRoutes },
   { path: "/notifications", route: notificationRoutes },
   { path: "/summaries", route: summaryRoutes },
+  { path: "/feedbacks", route: feedbackRoutes },
   { path: "/upload-files", route: uploadFileRoutes },
 ];
 

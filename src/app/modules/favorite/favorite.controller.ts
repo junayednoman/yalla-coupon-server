@@ -14,7 +14,7 @@ const addOrRemoveFavorite = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const getAllFavorites = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await favoriteService.getAllFavorites(req.query);
+  const result = await favoriteService.getAllFavorites(req.query, req.user?.id as string);
   successResponse(res, {
     message: "Favorites retrieved successfully!",
     data: result,

@@ -1,8 +1,12 @@
 import Activity from "./activity.model";
 import { IActivity } from "./activity.interface";
 import AggregationBuilder from "../../classes/AggregationBuilder";
+import Coupon from "../coupon/coupon.model";
+import { AppError } from "../../classes/appError";
 
 const addActivity = async (payload: IActivity) => {
+  const coupon = await Coupon.findById(payload.coupon);
+  if (!coupon) throw new AppError(400, "Invalid coupon id");
   const existingActivity = await Activity.findOne({ user: payload.user, coupon: payload.coupon, type: payload.type });
   if (existingActivity) {
     await existingActivity.deleteOne();
