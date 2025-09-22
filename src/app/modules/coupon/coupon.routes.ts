@@ -22,13 +22,13 @@ router.get(
 
 router.get(
   "/single/:id",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getSingleCoupon
 );
 
 router.get(
   "/:storeId",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getCouponsByStoreId
 );
 

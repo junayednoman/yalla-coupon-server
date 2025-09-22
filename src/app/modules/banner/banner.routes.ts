@@ -20,13 +20,13 @@ router.post(
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   bannerController.getAllBanners
 );
 
 router.get(
   "/:id",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer]),
+  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   bannerController.getSingleBanner
 );
 
