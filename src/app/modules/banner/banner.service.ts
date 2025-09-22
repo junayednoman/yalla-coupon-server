@@ -7,6 +7,7 @@ import { uploadToS3 } from "../../utils/multerS3Uploader";
 import deleteLocalFile from "../../utils/deleteLocalFile";
 import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import Coupon from "../coupon/coupon.model";
+
 const createBanner = async (payload: IBanner, file: TFile) => {
   const coupon = await Coupon.findById(payload.coupon.toString());
   if (!coupon) {

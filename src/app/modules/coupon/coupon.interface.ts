@@ -11,6 +11,7 @@ export interface ICoupon {
   title: string;
   subtitle: string;
   validity: string;
+  type: "free" | "premium";
   status: "active" | "expired";
   applicableUserType: "FIRST_TIME" | "REPEAT" | "BOTH";
   howToUse: string[];
