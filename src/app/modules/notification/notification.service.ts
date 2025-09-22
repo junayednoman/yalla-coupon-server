@@ -6,8 +6,12 @@ import Coupon from "../coupon/coupon.model";
 import { TNotificationPayload } from "./notification.interface";
 import Auth from "../auth/auth.model";
 import { userRoles } from "../../constants/global.constant";
+import { AppError } from "../../classes/appError";
+import Alert from "../alert/alert.model";
 
 const sendAlert = async (payload: Partial<TNotificationPayload>) => {
+  const coupon = await Coupon.findById(payload.coupon);
+  if (!coupon) throw new AppError(400, "Invalid coupon id");
   const pipeline: PipelineStage[] = [
     {
       $match: {
@@ -36,11 +40,27 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
 
   const users = await Auth.aggregate(pipeline);
 
-  for (const user of users) {
-    const notificationData = {
-      receiver: user._id, ...payload
+  const session = await Auth.startSession();
+  try {
+    session.startTransaction();
+
+    await Alert.create([payload], { session });
+
+    for (const user of users) {
+      const notificationData = {
+        receiver: user._id,
+        type: "alert",
+        ...payload
+      }
+      await Notification.create([notificationData], { session });
     }
-    await Notification.create(notificationData);
+
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    await session.endSession();
   }
 }
 
@@ -71,7 +91,38 @@ const getAllNotifications = async (query: Record<string, any>, id: string) => {
     .selectFields();
 
   const total = await userQuery.countTotal();
-  const result = await userQuery.queryModel;
+  const result = await userQuery.queryModel
+
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const meta = { total, page, limit };
+
+  return { data: result, meta };
+}
+
+const getAllAlerts = async (query: Record<string, any>) => {
+  const searchableFields = ["title"];
+  const userQuery = new QueryBuilder(
+    Alert.find(),
+    query
+  )
+    .search(searchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .selectFields();
+
+  const total = await userQuery.countTotal();
+  const result = await userQuery.queryModel.populate([
+    {
+      path: "coupon",
+      populate: {
+        path: "categories",
+        select: "name"
+      },
+    },
+  ])
 
 
   const page = query.page || 1;
@@ -101,4 +152,4 @@ const deleteMyNotifications = async (id: string) => {
   return result;
 }
 
-export const notificationServices = { getAllNotifications, markAllAsRead, createNotification, getUnreadNotificationCount, deleteSingleNotification, deleteMyNotifications, sendAlert };
+export const notificationServices = { getAllNotifications, markAllAsRead, createNotification, getUnreadNotificationCount, deleteSingleNotification, deleteMyNotifications, sendAlert, getAllAlerts };

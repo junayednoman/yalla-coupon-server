@@ -1,7 +1,4 @@
-export interface IStore {
-  name: string;
-  image: string;
-}import { Router } from "express";
+import { Router } from "express";
 import storeController from "./store.controller";
 import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import { storeZodSchema } from "./store.validation";

@@ -11,6 +11,8 @@ notificationRoutes.post("/", authVerify([userRoles.admin, userRoles.editor, user
 
 notificationRoutes.get("/", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]), notificationController.getAllNotifications)
 
+notificationRoutes.get("/alerts", authVerify([userRoles.admin]), notificationController.getAllAlerts)
+
 notificationRoutes.patch(
   "/mark-all-as-read", authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   notificationController.markAllAsRead)

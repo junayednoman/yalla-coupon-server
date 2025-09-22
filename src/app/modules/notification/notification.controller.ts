@@ -37,6 +37,17 @@ const getAllNotifications = handleAsyncRequest(
   }
 )
 
+const getAllAlerts = handleAsyncRequest(
+  async (req: TRequest, res) => {
+    const query = req.query;
+    const result = await notificationServices.getAllAlerts(query);
+    successResponse((res), {
+      message: "Notifications retrieved successfully!",
+      data: result
+    })
+  }
+)
+
 const markAllAsRead = handleAsyncRequest(
   async (req: TRequest, res) => {
     const id = req.user!.id;
@@ -88,5 +99,6 @@ export const notificationController = {
   createNotification,
   getUnreadNotificationCount,
   deleteSingleNotification,
-  deleteMyNotifications
+  deleteMyNotifications,
+  getAllAlerts
 }

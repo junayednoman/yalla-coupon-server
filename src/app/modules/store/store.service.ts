@@ -1,11 +1,11 @@
 import Store from "./store.model";
 import { AppError } from "../../classes/appError";
 import QueryBuilder from "../../classes/queryBuilder";
-import { IStore } from "./store.routes";
 import { TFile } from "../../../interface/file.interface";
 import { uploadToS3 } from "../../utils/multerS3Uploader";
 import deleteLocalFile from "../../utils/deleteLocalFile";
 import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
+import { IStore } from "./store.interface";
 
 const createStore = async (payload: IStore, file: TFile) => {
   const existingStore = await Store.findOne({ name: payload.name });

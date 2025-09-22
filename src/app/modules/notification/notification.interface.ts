@@ -7,4 +7,5 @@ export type TNotificationPayload = {
   coupon: ObjectId;
   hasRead?: boolean;
   countries: string[];
+  type: "alert" | 'others';
 };
