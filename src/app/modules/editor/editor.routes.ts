@@ -42,4 +42,10 @@ router.patch(
   editorController.changeEditorStatus
 );
 
+router.delete(
+  "/:id",
+  authVerify([userRoles.admin]),
+  editorController.deleteEditor
+);
+
 export const editorRoutes = router;

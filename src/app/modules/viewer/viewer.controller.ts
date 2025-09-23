@@ -43,12 +43,21 @@ const changeViewerStatus = handleAsyncRequest(async (req: any, res) => {
   });
 });
 
+const deleteViewer = handleAsyncRequest(async (req: any, res) => {
+  const result = await viewerService.deleteViewer(req.params.id);
+  successResponse(res, {
+    message: `Viewer deleted successfully!`,
+    data: result,
+  });
+});
+
 const viewerController = {
   updateProfile,
   getProfile,
   getAllViewers,
   getSingleViewer,
   changeViewerStatus,
+  deleteViewer
 };
 
 export default viewerController;

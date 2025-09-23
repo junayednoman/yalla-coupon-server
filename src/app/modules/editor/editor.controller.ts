@@ -43,12 +43,21 @@ const changeEditorStatus = handleAsyncRequest(async (req: any, res) => {
   });
 });
 
+const deleteEditor = handleAsyncRequest(async (req: any, res) => {
+  const result = await editorService.deleteEditor(req.params.id);
+  successResponse(res, {
+    message: `Editor deleted successfully!`,
+    data: result,
+  });
+});
+
 const editorController = {
   updateProfile,
   getProfile,
   getAllEditors,
   getSingleEditor,
   changeEditorStatus,
+  deleteEditor
 };
 
 export default editorController;

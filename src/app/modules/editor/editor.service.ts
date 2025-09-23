@@ -34,7 +34,7 @@ const getAllEditors = async (query: Record<string, any>) => {
 
   const total = await editorQuery.countTotal();
   const result = await editorQuery.queryModel;
-  
+
   const page = query.page || 1;
   const limit = query.limit || 10;
   const meta = { total, page, limit };
@@ -66,12 +66,35 @@ const changeEditorStatus = async (id: string) => {
   }
 };
 
+const deleteEditor = async (id: string) => {
+  const editor = await Editor.findById(id);
+  if (!editor) throw new AppError(400, "Invalid editor id!");
+
+  const session = await startSession();
+  try {
+    session.startTransaction();
+
+    await Auth.findOneAndDelete({ user: id });
+    await Editor.findByIdAndDelete(id);
+
+    await session.commitTransaction();
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(500, error.message || "Error deleting editor!");
+  } finally {
+    session.endSession();
+  }
+  return editor
+
+}
+
 const editorService = {
   updateProfile,
   getProfile,
   getAllEditors,
   getSingleEditor,
   changeEditorStatus,
+  deleteEditor
 };
 
 export default editorService;

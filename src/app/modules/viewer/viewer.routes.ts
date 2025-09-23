@@ -42,4 +42,10 @@ router.patch(
   viewerController.changeViewerStatus
 );
 
+router.delete(
+  "/:id",
+  authVerify([userRoles.admin]),
+  viewerController.deleteViewer
+);
+
 export const viewerRoutes = router;

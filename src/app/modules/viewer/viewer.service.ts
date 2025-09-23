@@ -66,12 +66,35 @@ const changeViewerStatus = async (id: string) => {
   }
 };
 
+const deleteViewer = async (id: string) => {
+  const viewer = await Viewer.findById(id);
+  if (!viewer) throw new AppError(400, "Invalid viewer id!");
+
+  const session = await startSession();
+  try {
+    session.startTransaction();
+
+    await Auth.findOneAndDelete({ user: id });
+    await Viewer.findByIdAndDelete(id);
+
+    await session.commitTransaction();
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(500, error.message || "Error deleting viewer!");
+  } finally {
+    session.endSession();
+  }
+  return viewer
+
+}
+
 const viewerService = {
   updateProfile,
   getProfile,
   getAllViewers,
   getSingleViewer,
   changeViewerStatus,
+  deleteViewer
 };
 
 export default viewerService;
