@@ -7,4 +7,5 @@ export interface TFile {
   filename: string
   path: string
   size: number
+  buffer: Buffer
 }

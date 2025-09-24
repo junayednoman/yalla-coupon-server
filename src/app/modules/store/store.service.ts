@@ -2,14 +2,12 @@ import Store from "./store.model";
 import { AppError } from "../../classes/appError";
 import QueryBuilder from "../../classes/queryBuilder";
 import { TFile } from "../../../interface/file.interface";
-import deleteLocalFile from "../../utils/deleteLocalFile";
 import { IStore } from "./store.interface";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const createStore = async (payload: IStore, file: TFile) => {
   const existingStore = await Store.findOne({ name: payload.name });
   if (existingStore) {
-    await deleteLocalFile(file.filename);
     throw new AppError(400, "Store already exists!");
   }
   payload.image = await uploadToS3(file);
@@ -45,7 +43,6 @@ const getSingleStore = async (storeId: string) => {
 const updateStore = async (storeId: string, payload: Partial<IStore>, file?: TFile) => {
   const store = await Store.findById(storeId);
   if (!store) {
-    if (file) await deleteLocalFile(file.filename);
     throw new AppError(404, "Store not found");
   }
   if (file) payload.image = await uploadToS3(file);

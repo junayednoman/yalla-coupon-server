@@ -3,14 +3,12 @@ import { AppError } from "../../classes/appError";
 import { IBanner } from "./banner.interface";
 import QueryBuilder from "../../classes/queryBuilder";
 import { TFile } from "../../../interface/file.interface";
-import deleteLocalFile from "../../utils/deleteLocalFile";
 import Coupon from "../coupon/coupon.model";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const createBanner = async (payload: IBanner, file: TFile) => {
   const coupon = await Coupon.findById(payload.coupon.toString());
   if (!coupon) {
-    if (file) await deleteLocalFile(file.filename);
     throw new AppError(400, "Invalid coupon id");
   }
 
@@ -56,13 +54,11 @@ const updateBanner = async (bannerId: string, payload: Partial<IBanner>, file?: 
   if (payload.coupon) {
     const coupon = await Coupon.findById(payload.coupon)
     if (!coupon) {
-      if (file) await deleteLocalFile(file.filename);
       throw new AppError(400, "Invalid coupon id");
     }
   }
   const banner = await Banner.findById(bannerId);
   if (!banner) {
-    if (file) await deleteLocalFile(file.filename);
     throw new AppError(404, "Banner not found");
   }
 
