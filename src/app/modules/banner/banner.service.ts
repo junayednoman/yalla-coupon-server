@@ -3,10 +3,9 @@ import { AppError } from "../../classes/appError";
 import { IBanner } from "./banner.interface";
 import QueryBuilder from "../../classes/queryBuilder";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
 import deleteLocalFile from "../../utils/deleteLocalFile";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import Coupon from "../coupon/coupon.model";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const createBanner = async (payload: IBanner, file: TFile) => {
   const coupon = await Coupon.findById(payload.coupon.toString());
@@ -14,7 +13,9 @@ const createBanner = async (payload: IBanner, file: TFile) => {
     if (file) await deleteLocalFile(file.filename);
     throw new AppError(400, "Invalid coupon id");
   }
+
   if (!file) throw new AppError(400, "Image is required!");
+
   payload.image = await uploadToS3(file);
   const result = await Banner.create(payload);
   return result;
@@ -71,7 +72,7 @@ const updateBanner = async (bannerId: string, payload: Partial<IBanner>, file?: 
     runValidators: true,
   });
 
-  if (banner.image && payload.image && result) await deleteFileFromS3(banner.image);
+  if (banner.image && payload.image && result) await deleteFromS3(banner.image);
 
   return result;
 };
@@ -80,7 +81,7 @@ const deleteBanner = async (bannerId: string) => {
   const banner = await Banner.findById(bannerId);
   if (!banner) throw new AppError(404, "Banner not found");
   const result = await Banner.findByIdAndDelete(bannerId);
-  if (result) await deleteFileFromS3(banner.image)
+  if (result) await deleteFromS3(banner.image)
   return result;
 };
 

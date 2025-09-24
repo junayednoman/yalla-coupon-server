@@ -2,10 +2,9 @@ import Thumbnail from "./thumbnail.model";
 import { AppError } from "../../classes/appError";
 import { IThumbnail } from "./thumbnail.interface";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
 import Coupon from "../coupon/coupon.model";
 import deleteLocalFile from "../../utils/deleteLocalFile";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const addThumbnail = async (payload: IThumbnail, file: TFile) => {
   if (!file) throw new AppError(400, "Image is required!");
@@ -46,7 +45,7 @@ const updateThumbnail = async (thumbnailId: string, payload: Partial<IThumbnail>
   if (file) payload.image = await uploadToS3(file);
   const result = await Thumbnail.findByIdAndUpdate(thumbnailId, payload, { new: true });
 
-  if (result && payload.image && thumbnail.image) await deleteFileFromS3(thumbnail.image);
+  if (result && payload.image && thumbnail.image) await deleteFromS3(thumbnail.image);
   return result;
 };
 
@@ -54,7 +53,7 @@ const deleteThumbnail = async (thumbnailId: string) => {
   const thumbnail = await Thumbnail.findById(thumbnailId);
   if (!thumbnail) throw new AppError(404, "Thumbnail not found");
   const result = await Thumbnail.findByIdAndDelete(thumbnailId);
-  if (result && thumbnail.image) await deleteFileFromS3(thumbnail.image)
+  if (result && thumbnail.image) await deleteFromS3(thumbnail.image)
   return result;
 };
 

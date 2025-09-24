@@ -2,10 +2,9 @@ import Store from "./store.model";
 import { AppError } from "../../classes/appError";
 import QueryBuilder from "../../classes/queryBuilder";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
 import deleteLocalFile from "../../utils/deleteLocalFile";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import { IStore } from "./store.interface";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const createStore = async (payload: IStore, file: TFile) => {
   const existingStore = await Store.findOne({ name: payload.name });
@@ -54,7 +53,7 @@ const updateStore = async (storeId: string, payload: Partial<IStore>, file?: TFi
     new: true,
     runValidators: true,
   });
-  if (file && result) await deleteFileFromS3(store.image)
+  if (file && result) await deleteFromS3(store.image)
   return result;
 };
 
@@ -62,7 +61,7 @@ const deleteStore = async (storeId: string) => {
   const store = await Store.findById(storeId);
   if (!store) throw new AppError(404, "Store not found");
   const result = await Store.findByIdAndDelete(storeId);
-  if (result) await deleteFileFromS3(store.image)
+  if (result) await deleteFromS3(store.image)
   return result;
 };
 

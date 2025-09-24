@@ -4,7 +4,7 @@ import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import { storeZodSchema } from "./store.validation";
 import authVerify from "../../middlewares/authVerify";
 import { userRoles } from "../../constants/global.constant";
-import { upload } from "../../utils/multerS3Uploader";
+import { upload } from "../../utils/awss3";
 
 const router = Router();
 

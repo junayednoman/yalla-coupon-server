@@ -1,6 +1,5 @@
 import { TFile } from "../../../interface/file.interface";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 import { TAdmin } from "./admin.interface";
 import Admin from "./admin.model";
 
@@ -20,7 +19,7 @@ const updateAdminProfileImage = async (email: string, file: TFile) => {
   const image = await uploadToS3(file);
   const result = await Admin.findOneAndUpdate({ email }, { image }, { new: true });
   if (result) {
-    if (admin?.image) deleteFileFromS3(admin?.image.split(".com/")[1]);
+    if (admin?.image) deleteFromS3(admin.image);
   }
   return result;
 };

@@ -10,9 +10,8 @@ import config from "../../config";
 import generateOTP from "../../utils/generateOTP";
 import axios from "axios";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import QueryBuilder from "../../classes/queryBuilder";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const userSignUp = async ({ password, ...payload }: IUser & { password: string }) => {
   const auth = await Auth.findOne({ email: payload.email, isAccountVerified: true });
@@ -92,7 +91,7 @@ const updateProfile = async (userId: string, payload: Partial<IUser>, file?: TFi
   const auth = await Auth.findById(userId).populate("user");
   if (file) payload.image = await uploadToS3(file);
   const result = await User.findOneAndUpdate({ _id: (auth?.user as any)?._id }, payload, { new: true });
-  if ((auth?.user as any).image && payload.image && result) await deleteFileFromS3((auth?.user as any).image)
+  if ((auth?.user as any).image && payload.image && result) await deleteFromS3((auth?.user as any).image)
   return result;
 };
 

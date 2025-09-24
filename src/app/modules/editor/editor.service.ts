@@ -4,16 +4,15 @@ import { IEditor } from "./editor.interface";
 import Auth from "../auth/auth.model";
 import { startSession } from "mongoose";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import QueryBuilder from "../../classes/queryBuilder";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const updateProfile = async (editorId: string, payload: Partial<IEditor>, file?: TFile) => {
   const auth = await Auth.findById(editorId).populate("user");
 
   if (file) payload.image = await uploadToS3(file);
   const result = await Editor.findOneAndUpdate({ _id: (auth?.user as any)?._id }, payload, { new: true });
-  if ((auth?.user as any).image && payload.image && result) await deleteFileFromS3((auth?.user as any).image);
+  if ((auth?.user as any).image && payload.image && result) await deleteFromS3((auth?.user as any).image);
   return result;
 };
 
@@ -75,8 +74,9 @@ const deleteEditor = async (id: string) => {
     session.startTransaction();
 
     await Auth.findOneAndDelete({ user: id });
-    await Editor.findByIdAndDelete(id);
+    const result = await Editor.findByIdAndDelete(id);
 
+    if (result?.image) await deleteFromS3(result.image);
     await session.commitTransaction();
   } catch (error: any) {
     await session.abortTransaction();

@@ -2,18 +2,17 @@ import { AppError } from "../../classes/appError";
 import Auth from "../auth/auth.model";
 import { startSession } from "mongoose";
 import { TFile } from "../../../interface/file.interface";
-import { uploadToS3 } from "../../utils/multerS3Uploader";
-import { deleteFileFromS3 } from "../../utils/deleteFileFromS3";
 import QueryBuilder from "../../classes/queryBuilder";
 import { TViewer } from "./viewer.interface";
 import Viewer from "./viewer.model";
+import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const updateProfile = async (viewerId: string, payload: Partial<TViewer>, file?: TFile) => {
   const auth = await Auth.findById(viewerId).populate("user");
 
   if (file) payload.image = await uploadToS3(file);
   const result = await Viewer.findOneAndUpdate({ _id: (auth?.user as any)?._id }, payload, { new: true });
-  if ((auth?.user as any).image && payload.image && result) await deleteFileFromS3((auth?.user as any).image);
+  if ((auth?.user as any).image && payload.image && result) await deleteFromS3((auth?.user as any).image);
   return result;
 };
 
@@ -75,8 +74,9 @@ const deleteViewer = async (id: string) => {
     session.startTransaction();
 
     await Auth.findOneAndDelete({ user: id });
-    await Viewer.findByIdAndDelete(id);
+    const result = await Viewer.findByIdAndDelete(id);
 
+    if (result?.image) await deleteFromS3(result.image);
     await session.commitTransaction();
   } catch (error: any) {
     await session.abortTransaction();
