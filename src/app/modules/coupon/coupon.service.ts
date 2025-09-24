@@ -16,7 +16,7 @@ const createCoupon = async (payload: ICoupon) => {
 };
 
 const getAllCoupons = async (query: Record<string, any>, userId: string, userRole: "Admin" | "Editor" | "Viewer" | "User") => {
-  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
+  const searchableFields = ["store.name", "title", "howToUse", "terms"];
 
   const pipeline = [];
 
@@ -124,7 +124,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
 };
 
 const getTrendingCoupons = async (query: Record<string, any>, userId: string) => {
-  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
+  const searchableFields = ["store.name", "title", "howToUse", "terms"];
   query.sort = "-fakeUses"
   query.limit = 2
   const auth = await Auth.findById(userId).populate("user", "country");
@@ -205,7 +205,7 @@ const getTrendingCoupons = async (query: Record<string, any>, userId: string) =>
 };
 
 const getFeaturedCoupons = async (query: Record<string, any>, userId: string) => {
-  const searchableFields = ["categories.name", "store.name", "title", "howToUse", "terms"];
+  const searchableFields = ["store.name", "title", "howToUse", "terms"];
   query.isFeatured = true
   query.limit = 2
   const auth = await Auth.findById(userId).populate("user", "country");
