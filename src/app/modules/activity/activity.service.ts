@@ -87,7 +87,7 @@ const getAllActivities = async (query: Record<string, any>) => {
     },
     {
       $project: {
-        couponTitle: "$coupon.title",
+        couponCode: "$coupon.code",
         storeName: "$store.name",
         storeImage: "$store.image",
         createdAt: 1,
