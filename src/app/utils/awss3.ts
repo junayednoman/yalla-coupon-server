@@ -64,7 +64,7 @@ export const uploadToS3 = async (file: TFile): Promise<string> => {
     console.log(error);
     throw new AppError(400, 'File Upload failed');
   } finally {
-    fs.unlinkSync(localFilePath);
+    // fs.unlinkSync(localFilePath);
   }
 };
 
