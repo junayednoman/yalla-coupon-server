@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const couponZodSchema = z.object({
   store: z.string().min(1, "Store ID is required"),
-  categories: z.array(z.string().min(1, "Category ID is required")).min(1, "At least one category is required"),
   countries: z.array(z.string().min(1, "Country is required")).min(1, "At least one country is required"),
   link: z.string().url("Link must be a valid URL").min(1, "Link is required"),
   fakeUses: z.number().min(0, "Fake uses must be a non-negative number"),

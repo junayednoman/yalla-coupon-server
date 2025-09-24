@@ -11,7 +11,10 @@ const router = Router();
 router.post(
   "/",
   authVerify([userRoles.admin]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
   handleZodValidation(storeZodSchema, { formData: true }),
   storeController.createStore
 );
@@ -31,7 +34,10 @@ router.get(
 router.put(
   "/:id",
   authVerify([userRoles.admin]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
   handleZodValidation(storeZodSchema.partial(), { formData: true }),
   storeController.updateStore
 );

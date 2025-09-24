@@ -21,6 +21,18 @@ router.get(
 );
 
 router.get(
+  "/trending",
+  authVerify([userRoles.user]),
+  couponController.getTrendingCoupons
+);
+
+router.get(
+  "/featured",
+  authVerify([userRoles.user]),
+  couponController.getFeaturedCoupons
+);
+
+router.get(
   "/single/:id",
   authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getSingleCoupon
@@ -37,6 +49,12 @@ router.put(
   authVerify([userRoles.admin, userRoles.editor]),
   handleZodValidation(couponZodSchema.partial()),
   couponController.updateCoupon
+);
+
+router.patch(
+  "/:id",
+  authVerify([userRoles.admin, userRoles.editor]),
+  couponController.toggleFeaturedStatus
 );
 
 router.delete(

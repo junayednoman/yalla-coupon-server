@@ -5,7 +5,6 @@ import { CouponType } from "./coupon.constant";
 const couponSchema = new Schema<ICoupon>(
   {
     store: { type: Types.ObjectId, ref: "Store", required: true },
-    categories: [{ type: Types.ObjectId, ref: "Category", required: true }],
     countries: [{ type: String, required: true }],
     link: { type: String, required: true },
     fakeUses: { type: Number, default: 0 },
@@ -23,6 +22,7 @@ const couponSchema = new Schema<ICoupon>(
     },
     howToUse: { type: [String], required: true },
     terms: { type: [String], required: true },
+    isFeatured: { type: Boolean, default: false },
   },
   {
     timestamps: true,
