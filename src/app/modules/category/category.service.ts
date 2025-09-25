@@ -1,9 +1,10 @@
 import Category from "./category.model";
 import { AppError } from "../../classes/appError";
 import { TCategory } from "./category.interface";
-import QueryBuilder from "../../classes/queryBuilder";
 import { TFile } from "../../../interface/file.interface";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
+import AggregationBuilder from "../../classes/AggregationBuilder";
+import { PipelineStage } from "mongoose";
 
 const createCategory = async (payload: TCategory, file: TFile) => {
   if (!file) throw new AppError(400, "Image is required!");
@@ -18,15 +19,32 @@ const createCategory = async (payload: TCategory, file: TFile) => {
 const getAllCategories = async (query: Record<string, any>) => {
   const searchableFields = ["name"];
 
-  const categoryQuery = new QueryBuilder(Category.find(), query)
+  const pipeline: PipelineStage[] = [
+    {
+      $lookup: {
+        from: "stores",
+        localField: "_id",
+        foreignField: "categories",
+        as: "stores"
+      }
+    },
+
+    {
+      $addFields: {
+        storeCount: { $size: "$stores" }
+      }
+    },
+
+    { $project: { stores: 0 } }
+  ];
+
+  const categoryQuery = new AggregationBuilder(Category, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()
-    .paginate()
-    .selectFields();
 
+  const result = await categoryQuery.execute();
   const total = await categoryQuery.countTotal();
-  const result = await categoryQuery.queryModel;
   const meta = {
     total,
     limit: query.limit || 10,

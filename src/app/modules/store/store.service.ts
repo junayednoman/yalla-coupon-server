@@ -1,9 +1,10 @@
 import Store from "./store.model";
 import { AppError } from "../../classes/appError";
-import QueryBuilder from "../../classes/queryBuilder";
 import { IStore, TStoreFiles } from "./store.interface";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 import Category from "../category/category.model";
+import { PipelineStage } from "mongoose";
+import AggregationBuilder from "../../classes/AggregationBuilder";
 
 const createStore = async (payload: IStore, files: TStoreFiles) => {
   const existingStore = await Store.findOne({ name: payload.name });
@@ -30,20 +31,37 @@ const createStore = async (payload: IStore, files: TStoreFiles) => {
 const getAllStores = async (query: Record<string, any>) => {
   const searchableFields = ["name", "image"];
 
-  const storeQuery = new QueryBuilder(Store.find(), query)
+  const pipeline: PipelineStage[] = [
+    {
+      $lookup: {
+        from: "coupons",
+        localField: "_id",
+        foreignField: "store",
+        as: "coupons"
+      }
+    },
+
+    {
+      $addFields: {
+        couponCount: { $size: "$coupons" }
+      }
+    },
+
+    { $project: { coupons: 0 } }
+  ];
+
+  const storeQuery = new AggregationBuilder(Store, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()
-    .paginate()
-    .selectFields();
 
+  const result = await storeQuery.execute();
   const total = await storeQuery.countTotal();
-  const result = await storeQuery.queryModel;
-
-  const page = query.page || 1;
-  const limit = query.limit || 10;
-  const meta = { total, page, limit };
-
+  const meta = {
+    total,
+    limit: query.limit || 10,
+    page: query.page || 1
+  }
   return { data: result, meta };
 };
 
