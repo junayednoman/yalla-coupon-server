@@ -115,11 +115,8 @@ const getAllAlerts = async (query: Record<string, any>) => {
 
   const total = await userQuery.countTotal();
   const result = await userQuery.queryModel.populate([
-    {
-      path: "coupon"
-    },
-  ])
-
+    { path: "coupon", populate: { path: "store", select: "name image", populate: { path: "categories", select: "name" } } },
+  ]);
 
   const page = query.page || 1;
   const limit = query.limit || 10;
