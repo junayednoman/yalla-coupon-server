@@ -307,8 +307,12 @@ const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) 
 
 const getSingleCoupon = async (couponId: string) => {
   const coupon = await Coupon.findById(couponId)
-    .populate("store", "name")
-    .populate("categories", "name");
+    .populate([
+      {
+        path: "store",
+        select: "name image"
+      },
+    ])
   return coupon;
 };
 
