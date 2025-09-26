@@ -1,10 +1,11 @@
-import Store from "./store.model";
+
 import { AppError } from "../../classes/appError";
 import { IStore, TStoreFiles } from "./store.interface";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 import Category from "../category/category.model";
-import { PipelineStage } from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import AggregationBuilder from "../../classes/AggregationBuilder";
+import Store from "./store.model";
 
 const createStore = async (payload: IStore, files: TStoreFiles) => {
   const existingStore = await Store.findOne({ name: payload.name });
@@ -31,7 +32,23 @@ const createStore = async (payload: IStore, files: TStoreFiles) => {
 const getAllStores = async (query: Record<string, any>) => {
   const searchableFields = ["name", "image"];
 
-  const pipeline: PipelineStage[] = [
+  const pipeline: PipelineStage[] = [];
+
+  if (query.categories) {
+    pipeline.push(
+      {
+        $match: {
+          categories: {
+            $in: [new mongoose.Types.ObjectId(query.categories)]
+          }
+        }
+      }
+    )
+
+    delete query.categories
+  }
+
+  pipeline.push(
     {
       $lookup: {
         from: "coupons",
@@ -40,15 +57,13 @@ const getAllStores = async (query: Record<string, any>) => {
         as: "coupons"
       }
     },
-
     {
       $addFields: {
         couponCount: { $size: "$coupons" }
       }
     },
-
     { $project: { coupons: 0 } }
-  ];
+  )
 
   const storeQuery = new AggregationBuilder(Store, pipeline, query)
     .search(searchableFields)
