@@ -3,8 +3,7 @@ import { AppError } from "../../classes/appError";
 import { ICoupon } from "./coupon.interface";
 import Store from "../store/store.model";
 import AggregationBuilder from "../../classes/AggregationBuilder";
-import QueryBuilder from "../../classes/queryBuilder";
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import Auth from "../auth/auth.model";
 import { userRoles } from "../../constants/global.constant";
 
@@ -19,6 +18,17 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
 
   const pipeline = [];
+
+  if (query.store) {
+    pipeline.push(
+      {
+        $match: {
+          store: new mongoose.Types.ObjectId(query.store)
+        }
+      }
+    )
+    delete query.store
+  }
 
   if (userRole === userRoles.user) {
     const auth = await Auth.findById(userId).populate("user", "country");
@@ -287,8 +297,11 @@ const getFeaturedCoupons = async (query: Record<string, any>, userId: string) =>
 
 const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) => {
   const searchableFields = ["title", "subtitle", "howToUse", "terms", "code"];
-  query.store = storeId
-  const couponQuery = new QueryBuilder(Coupon.find(), query)
+  query.store = new mongoose.Types.ObjectId(storeId);
+
+  const pipeline: PipelineStage[] = [];
+
+  const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()
@@ -296,11 +309,13 @@ const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) 
     .selectFields();
 
   const total = await couponQuery.countTotal();
-  const result = await couponQuery.queryModel.populate("store");
+  const result = await couponQuery.execute();
 
-  const page = query.page || 1;
-  const limit = query.limit || 10;
-  const meta = { total, page, limit };
+  const meta = {
+    total,
+    limit: query.limit || 10,
+    page: query.page || 1
+  }
 
   return { data: result, meta };
 }
