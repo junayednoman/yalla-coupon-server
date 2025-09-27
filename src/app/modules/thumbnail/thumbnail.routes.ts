@@ -4,12 +4,14 @@ import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import { thumbnailZodSchema } from "./thumbnail.validation";
 import authVerify from "../../middlewares/authVerify";
 import { userRoles } from "../../constants/global.constant";
+import { upload } from "../../utils/awss3";
 
 const router = Router();
 
 router.post(
   "/",
   authVerify([userRoles.admin, userRoles.editor]),
+  upload.single("image"),
   handleZodValidation(thumbnailZodSchema, { formData: true }),
   thumbnailController.addThumbnail
 );
