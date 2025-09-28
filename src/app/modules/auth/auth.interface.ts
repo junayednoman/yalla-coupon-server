@@ -14,6 +14,7 @@ export type TAuth = {
   isOtpVerified: boolean;
   needsPasswordChange: boolean;
   referralCode?: string;
+  fcmToken: string;
   isDeleted: boolean;
   isBlocked: boolean;
 };

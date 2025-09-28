@@ -9,7 +9,8 @@ export const loginUserValidationSchema = z.object({
     .nonempty("Email is required"),
   password: z
     .string()
-    .nonempty("Password is required")
+    .nonempty("Password is required"),
+  fcmToken: z.string().optional(),
 });
 
 export const emailValidationSchema = z.object({

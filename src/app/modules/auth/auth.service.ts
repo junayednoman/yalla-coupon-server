@@ -78,7 +78,7 @@ const createModerator = async (payload: TModeratorSignUp) => {
   }
 };
 
-const loginUser = async (payload: { email: string; password: string, isRemember: boolean }) => {
+const loginUser = async (payload: { email: string; password: string, isRemember: boolean, fcmToken?: string }) => {
   const user = await isUserExist(payload.email);
 
   if (!user.isAccountVerified) throw new AppError(400, "Please, verify your account before logging in!");
@@ -109,6 +109,11 @@ const loginUser = async (payload: { email: string; password: string, isRemember:
   const refreshToken = jsonwebtoken.sign(jwtPayload, config.jwt_refresh_secret as string, {
     expiresIn: payload?.isRemember ? "60d" : "20d",
   });
+
+  // update fcm token if any
+  if (payload.fcmToken) {
+    await Auth.findByIdAndUpdate(user._id, { fcmToken: payload.fcmToken });
+  }
   return { accessToken, refreshToken, role: user.role };
 };
 

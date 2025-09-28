@@ -28,6 +28,7 @@ const userSchema = new Schema<TAuth>(
     isOtpVerified: { type: Boolean, default: undefined },
     needsPasswordChange: { type: Boolean, default: undefined },
     referralCode: { type: String, trim: true },
+    fcmToken: { type: String, trim: true },
     isDeleted: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
   },

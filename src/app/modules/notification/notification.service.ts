@@ -8,6 +8,7 @@ import Auth from "../auth/auth.model";
 import { userRoles } from "../../constants/global.constant";
 import { AppError } from "../../classes/appError";
 import Alert from "../alert/alert.model";
+import { sendNotification } from "../../utils/notification";
 
 const sendAlert = async (payload: Partial<TNotificationPayload>) => {
   const coupon = await Coupon.findById(payload.coupon);
@@ -52,7 +53,11 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
         type: "alert",
         ...payload
       }
-      await Notification.create([notificationData], { session });
+      const createdNotification = await Notification.create([notificationData], { session });
+      const fcmToken = user.fcmToken;
+      if (createdNotification && fcmToken) {
+        sendNotification(fcmToken, notificationData as TNotificationPayload)
+      }
     }
 
     await session.commitTransaction();
