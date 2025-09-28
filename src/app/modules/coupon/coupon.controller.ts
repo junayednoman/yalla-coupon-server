@@ -13,7 +13,7 @@ const createCoupon = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const getAllCoupons = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await couponService.getAllCoupons(req.query, req.user!.id, req.user!.role as "Admin" | "Editor" | "Viewer" | "User");
+  const result = await couponService.getAllCoupons(req.query, req?.user?.id, req?.user?.role as "Admin" | "Editor" | "Viewer" | "User" | undefined);
   successResponse(res, {
     message: "Coupons retrieved successfully!",
     data: result,
@@ -21,7 +21,7 @@ const getAllCoupons = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const getTrendingCoupons = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await couponService.getTrendingCoupons(req.query, req.user!.id);
+  const result = await couponService.getTrendingCoupons(req.query, req.user?.id);
   successResponse(res, {
     message: "Coupons retrieved successfully!",
     data: result,
@@ -29,7 +29,7 @@ const getTrendingCoupons = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const getFeaturedCoupons = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await couponService.getFeaturedCoupons(req.query, req.user!.id);
+  const result = await couponService.getFeaturedCoupons(req.query, req.user?.id);
   successResponse(res, {
     message: "Coupons retrieved successfully!",
     data: result,

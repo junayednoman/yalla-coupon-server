@@ -2,7 +2,7 @@ import { Router } from "express";
 import couponController from "./coupon.controller";
 import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import { couponZodSchema } from "./coupon.validation";
-import authVerify from "../../middlewares/authVerify";
+import authVerify, { optionalAuthVerify } from "../../middlewares/authVerify";
 import { userRoles } from "../../constants/global.constant";
 
 const router = Router();
@@ -16,31 +16,31 @@ router.post(
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getAllCoupons
 );
 
 router.get(
   "/trending",
-  authVerify([userRoles.user]),
+  optionalAuthVerify([userRoles.user]),
   couponController.getTrendingCoupons
 );
 
 router.get(
   "/featured",
-  authVerify([userRoles.user]),
+  optionalAuthVerify([userRoles.user]),
   couponController.getFeaturedCoupons
 );
 
 router.get(
   "/single/:id",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getSingleCoupon
 );
 
 router.get(
   "/:storeId",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
   couponController.getCouponsByStoreId
 );
 

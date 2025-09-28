@@ -21,13 +21,11 @@ router.post(
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.user]),
   storeController.getAllStores
 );
 
 router.get(
   "/:id",
-  authVerify([userRoles.admin, userRoles.user]),
   storeController.getSingleStore
 );
 

@@ -14,7 +14,7 @@ const createCoupon = async (payload: ICoupon) => {
   return result;
 };
 
-const getAllCoupons = async (query: Record<string, any>, userId: string, userRole: "Admin" | "Editor" | "Viewer" | "User") => {
+const getAllCoupons = async (query: Record<string, any>, userId?: string, userRole?: "Admin" | "Editor" | "Viewer" | "User" | undefined) => {
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
 
   const pipeline = [];
@@ -32,7 +32,6 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
 
   if (userRole === userRoles.user) {
     const auth = await Auth.findById(userId).populate("user", "country");
-
     pipeline.push(
       {
         $match: {
@@ -74,6 +73,11 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
           },
         },
       },
+      {
+        $project: {
+          favoriteDocs: 0
+        }
+      }
     )
   }
 
@@ -90,15 +94,7 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
       $match: {
         status: "active"
       }
-    },
-    {
-      $lookup: {
-        from: "categories",
-        localField: "categories",
-        foreignField: "_id",
-        as: "categories",
-      }
-    },
+    }
   )
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
@@ -133,19 +129,59 @@ const getAllCoupons = async (query: Record<string, any>, userId: string, userRol
   return { data: result, meta };
 };
 
-const getTrendingCoupons = async (query: Record<string, any>, userId: string) => {
+const getTrendingCoupons = async (query: Record<string, any>, userId?: string) => {
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
   query.sort = "-fakeUses"
   query.limit = 2
   const auth = await Auth.findById(userId).populate("user", "country");
   const pipeline = [];
 
-  pipeline.push(
-    {
-      $match: {
-        countries: { $in: [(auth?.user as any)?.country] }
+  if (userId) {
+    pipeline.push(
+      {
+        $match: {
+          countries: { $in: [(auth?.user as any)?.country] }
+        }
+      },
+      {
+        $lookup: {
+          from: "favorites",
+          let: { couponId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$coupon", "$$couponId"] },
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
+                  ],
+                },
+              },
+            },
+          ],
+          as: "favoriteDocs",
+        },
+      },
+      {
+        $addFields: {
+          isFavorite: {
+            $cond: {
+              if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          favoriteDocs: 0
+        }
       }
-    },
+    )
+  }
+
+  pipeline.push(
     {
       $lookup: {
         from: "stores",
@@ -160,48 +196,10 @@ const getTrendingCoupons = async (query: Record<string, any>, userId: string) =>
       }
     },
     {
-      $lookup: {
-        from: "categories",
-        localField: "categories",
-        foreignField: "_id",
-        as: "categories",
-      }
-    },
-    {
       $match: {
         status: "active"
       }
     },
-    {
-      $lookup: {
-        from: "favorites",
-        let: { couponId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$coupon", "$$couponId"] },
-                  { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
-                ],
-              },
-            },
-          },
-        ],
-        as: "favoriteDocs",
-      },
-    },
-    {
-      $addFields: {
-        isFavorite: {
-          $cond: {
-            if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
-            then: true,
-            else: false,
-          },
-        },
-      },
-    }
   )
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
@@ -214,19 +212,64 @@ const getTrendingCoupons = async (query: Record<string, any>, userId: string) =>
   return { data: result };
 };
 
-const getFeaturedCoupons = async (query: Record<string, any>, userId: string) => {
+const getFeaturedCoupons = async (query: Record<string, any>, userId?: string) => {
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
   query.isFeatured = true
   query.limit = 2
   const auth = await Auth.findById(userId).populate("user", "country");
   const pipeline = [];
 
-  pipeline.push(
-    {
-      $match: {
-        countries: { $in: [(auth?.user as any)?.country] }
+  if (userId) {
+    pipeline.push(
+      {
+        $match: {
+          countries: { $in: [(auth?.user as any)?.country] }
+        }
+      },
+      {
+        $match: {
+          status: "active"
+        }
+      },
+      {
+        $lookup: {
+          from: "favorites",
+          let: { couponId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$coupon", "$$couponId"] },
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
+                  ],
+                },
+              },
+            },
+          ],
+          as: "favoriteDocs",
+        },
+      },
+      {
+        $addFields: {
+          isFavorite: {
+            $cond: {
+              if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          favoriteDocs: 0
+        }
       }
-    },
+    )
+  }
+
+  pipeline.push(
     {
       $lookup: {
         from: "stores",
@@ -234,54 +277,6 @@ const getFeaturedCoupons = async (query: Record<string, any>, userId: string) =>
         foreignField: "_id",
         as: "store",
       }
-    },
-    {
-      $match: {
-        status: "active"
-      }
-    },
-    {
-      $lookup: {
-        from: "categories",
-        localField: "categories",
-        foreignField: "_id",
-        as: "categories",
-      }
-    },
-    {
-      $match: {
-        status: "active"
-      }
-    },
-    {
-      $lookup: {
-        from: "favorites",
-        let: { couponId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$coupon", "$$couponId"] },
-                  { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
-                ],
-              },
-            },
-          },
-        ],
-        as: "favoriteDocs",
-      },
-    },
-    {
-      $addFields: {
-        isFavorite: {
-          $cond: {
-            if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
-            then: true,
-            else: false,
-          },
-        },
-      },
     }
   )
 

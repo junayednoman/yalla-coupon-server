@@ -18,7 +18,6 @@ router.post(
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.viewer, userRoles.editor, userRoles.user]),
   categoryController.getAllCategories
 );
 
