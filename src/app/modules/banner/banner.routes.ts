@@ -2,7 +2,7 @@ import { Router } from "express";
 import bannerController from "./banner.controller";
 import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import { bannerZodSchema } from "./banner.validation";
-import authVerify from "../../middlewares/authVerify";
+import authVerify, { optionalAuthVerify } from "../../middlewares/authVerify";
 import { userRoles } from "../../constants/global.constant";
 import { upload } from "../../utils/awss3";
 
@@ -13,20 +13,30 @@ router.post(
   authVerify([userRoles.admin, userRoles.editor]),
   upload.single("image"),
   handleZodValidation(bannerZodSchema, {
-    formData: true
+    formData: true,
   }),
   bannerController.createBanner
 );
 
 router.get(
   "/",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   bannerController.getAllBanners
 );
 
 router.get(
   "/:id",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   bannerController.getSingleBanner
 );
 

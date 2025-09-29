@@ -16,12 +16,9 @@ router.post(
   thumbnailController.addThumbnail
 );
 
-router.get("/", thumbnailController.getAllThumbnails)
+router.get("/", thumbnailController.getAllThumbnails);
 
-router.get(
-  "/:id",
-  thumbnailController.getThumbnail
-);
+router.get("/:id", thumbnailController.getThumbnail);
 
 router.put(
   "/:id",
