@@ -53,13 +53,12 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
         type: "alert",
         ...payload
       }
-      const createdNotification = await Notification.create([notificationData], { session });
+
       const fcmToken = user.fcmToken;
-      if (createdNotification && fcmToken) {
-        sendNotification(fcmToken, notificationData as TNotificationPayload)
+      if (fcmToken) {
+        await sendNotification([fcmToken], notificationData as TNotificationPayload)
       }
     }
-
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
