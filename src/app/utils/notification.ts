@@ -11,7 +11,7 @@ admin.initializeApp({
 
 export const sendNotification = async (
   fcmToken: string[],
-  payload: TNotificationPayload,
+  payload: TNotificationPayload
 ): Promise<any> => {
   try {
     const response = await admin.messaging().sendEachForMulticast({
@@ -39,9 +39,7 @@ export const sendNotification = async (
       fcmToken?.map(async (token) => {
         try {
           if (token) {
-
             await NotificationModel.create(payload);
-
           } else {
             console.log("Token not found");
           }
@@ -62,8 +60,10 @@ export const sendNotification = async (
       console.error("Error sending message:", error);
       throw new AppError(
         StatusCodes.NOT_IMPLEMENTED,
-        error.message || "Failed to send notification",
+        error.message || "Failed to send notification"
       );
     }
   }
 };
+
+export const firebaseAdmin = admin;

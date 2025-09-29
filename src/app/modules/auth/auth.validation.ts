@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const loginUserValidationSchema = z.object({
   email: z
@@ -7,10 +7,13 @@ export const loginUserValidationSchema = z.object({
     .trim()
     .toLowerCase()
     .nonempty("Email is required"),
-  password: z
-    .string()
-    .nonempty("Password is required"),
+  password: z.string().nonempty("Password is required"),
   fcmToken: z.string().optional(),
+});
+
+export const googleLoginUserValidationSchema = z.object({
+  fcmToken: z.string().optional(),
+  idToken: z.string().min(1, "ID token is required"),
 });
 
 export const emailValidationSchema = z.object({

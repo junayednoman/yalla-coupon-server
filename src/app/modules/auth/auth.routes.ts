@@ -3,6 +3,7 @@ import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import {
   changePasswordValidationSchema,
   emailValidationSchema,
+  googleLoginUserValidationSchema,
   loginUserValidationSchema,
   moderatorZodSchema,
   resetForgottenPasswordSchema,
@@ -27,8 +28,19 @@ authRoutes.post(
 );
 
 authRoutes.post(
+  "/google-login",
+  handleZodValidation(googleLoginUserValidationSchema),
+  AuthController.googleLogin
+);
+
+authRoutes.post(
   "/logout",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  authVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   AuthController.logOut
 );
 authRoutes.post(
@@ -48,14 +60,20 @@ authRoutes.post(
 );
 authRoutes.post(
   "/change-password",
-  authVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  authVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   handleZodValidation(changePasswordValidationSchema),
   AuthController.changePassword
 );
-authRoutes.get(
-  "/refresh-token",
-  AuthController.getNewAccessToken
+authRoutes.get("/refresh-token", AuthController.getNewAccessToken);
+authRoutes.delete(
+  "/",
+  authVerify([userRoles.editor, userRoles.viewer, userRoles.user]),
+  AuthController.deleteUser
 );
-authRoutes.delete("/", authVerify([userRoles.editor, userRoles.viewer, userRoles.user]), AuthController.deleteUser)
 
 export default authRoutes;
