@@ -30,7 +30,7 @@ const getAllBanners = async (query: Record<string, any>) => {
     .selectFields()
 
   const total = await bannerQuery.countTotal();
-  const result = await bannerQuery.queryModel.populate("coupon", "code");
+  const result = await bannerQuery.queryModel.populate("coupon", "code type");
 
   const page = query.page || 1;
   const limit = query.limit || 10;
