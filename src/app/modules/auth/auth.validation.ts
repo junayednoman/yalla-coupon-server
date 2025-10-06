@@ -7,7 +7,15 @@ export const loginUserValidationSchema = z.object({
     .trim()
     .toLowerCase()
     .nonempty("Email is required"),
-  password: z.string().nonempty("Password is required"),
+  password: z
+    .string()
+    .min(7, "Password must be at least 7 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "Password must contain at least one special character"
+    ),
   fcmToken: z.string().optional(),
 });
 
@@ -43,12 +51,28 @@ export const resetForgottenPasswordSchema = z.object({
     .trim()
     .toLowerCase()
     .nonempty("Email is required"),
-  password: z.string().nonempty("Password is required"),
+  password: z
+    .string()
+    .min(7, "Password must be at least 7 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "Password must contain at least one special character"
+    ),
 });
 
 export const changePasswordValidationSchema = z.object({
   oldPassword: z.string().nonempty("Old Password is required"),
-  newPassword: z.string().nonempty("New Password is required"),
+  newPassword: z
+    .string()
+    .min(7, "Password must be at least 7 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "Password must contain at least one special character"
+    ),
 });
 
 export const moderatorZodSchema = z.object({
@@ -58,3 +82,7 @@ export const moderatorZodSchema = z.object({
 });
 
 export type TModeratorSignUp = z.infer<typeof moderatorZodSchema>;
+
+export const changeModeratorRoleValidationSchema = z.object({
+  role: z.enum(["Editor", "Viewer"]),
+});

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { handleZodValidation } from "../../middlewares/handleZodValidation";
 import {
+  changeModeratorRoleValidationSchema,
   changePasswordValidationSchema,
   emailValidationSchema,
   googleLoginUserValidationSchema,
@@ -74,6 +75,13 @@ authRoutes.delete(
   "/",
   authVerify([userRoles.editor, userRoles.viewer, userRoles.user]),
   AuthController.deleteUser
+);
+
+authRoutes.patch(
+  "/change-role/:email",
+  authVerify([userRoles.admin]),
+  handleZodValidation(changeModeratorRoleValidationSchema),
+  AuthController.changeModeratorRole
 );
 
 export default authRoutes;

@@ -16,17 +16,17 @@ const loginUser = handleAsyncRequest(async (req, res) => {
   const payload = req.body;
   const result = await AuthServices.loginUser(payload);
   // set refreshToken in cookie
-  const day = 24 * 60 * 60 * 1000
+  const day = 24 * 60 * 60 * 1000;
   const { refreshToken, accessToken } = result;
   const cookieOptions: any = {
     httpOnly: true,
-    secure: config.node_env === 'production', // Use secure in production
+    secure: config.node_env === "production", // Use secure in production
     maxAge: payload.isRemember ? 60 * day : 20 * day,
   };
 
-  if (config.node_env === 'production') cookieOptions.sameSite = 'none';
+  if (config.node_env === "production") cookieOptions.sameSite = "none";
 
-  res.cookie('yallaCouponRefreshToken', refreshToken, cookieOptions);
+  res.cookie("yallaCouponRefreshToken", refreshToken, cookieOptions);
 
   successResponse(res, {
     message: "User logged in successfully!",
@@ -38,17 +38,17 @@ const googleLogin = handleAsyncRequest(async (req, res) => {
   const idToken = req.body.idToken;
   const result = await AuthServices.googleLogin(idToken);
   // // set refreshToken in cookie
-  // const day = 24 * 60 * 60 * 1000
+  // const day = 24 * 60 * 60 * 1000;
   // const { refreshToken, accessToken } = result;
   // const cookieOptions: any = {
   //   httpOnly: true,
-  //   secure: config.node_env === 'production', // Use secure in production
-  //   maxAge: payload.isRemember ? 60 * day : 20 * day,
+  //   secure: config.node_env === "production", // Use secure in production
+  //   maxAge: 60 * day,
   // };
 
-  // if (config.node_env === 'production') cookieOptions.sameSite = 'none';
+  // if (config.node_env === "production") cookieOptions.sameSite = "none";
 
-  // res.cookie('refreshToken', refreshToken, cookieOptions);
+  // res.cookie("refreshToken", refreshToken, cookieOptions);
 
   successResponse(res, {
     message: "User logged in successfully!",
@@ -58,7 +58,7 @@ const googleLogin = handleAsyncRequest(async (req, res) => {
 
 const logOut = handleAsyncRequest(async (req, res) => {
   const refreshToken = req?.cookies?.refreshToken;
-  if (refreshToken) res.clearCookie('yallaCouponRefreshToken');
+  if (refreshToken) res.clearCookie("yallaCouponRefreshToken");
 
   successResponse(res, {
     message: "User logged out successfully!",
@@ -96,17 +96,17 @@ const changePassword = handleAsyncRequest(async (req: any, res) => {
   const result = await AuthServices.changePassword(email, payload);
 
   // set refreshToken in cookie
-  const day = 24 * 60 * 60 * 1000
+  const day = 24 * 60 * 60 * 1000;
   const { refreshToken, accessToken } = result;
   const cookieOptions: any = {
     httpOnly: true,
-    secure: config.node_env === 'production', // Use secure in production
+    secure: config.node_env === "production", // Use secure in production
     maxAge: 3 * day,
   };
 
-  if (config.node_env === 'production') cookieOptions.sameSite = 'none';
+  if (config.node_env === "production") cookieOptions.sameSite = "none";
 
-  res.cookie('refreshToken', refreshToken, cookieOptions);
+  res.cookie("refreshToken", refreshToken, cookieOptions);
 
   successResponse(res, {
     message: "New password created successfully!",
@@ -131,6 +131,17 @@ const deleteUser = handleAsyncRequest(async (req: any, res) => {
   });
 });
 
+const changeModeratorRole = handleAsyncRequest(async (req: any, res) => {
+  const result = await AuthServices.changeModeratorRole(
+    req.params.email,
+    req.body.role
+  );
+  successResponse(res, {
+    message: "Role change successfully!",
+    data: result,
+  });
+});
+
 const AuthController = {
   createModerator,
   loginUser,
@@ -141,7 +152,8 @@ const AuthController = {
   changePassword,
   getNewAccessToken,
   logOut,
-  deleteUser
+  deleteUser,
+  changeModeratorRole,
 };
 
 export default AuthController;

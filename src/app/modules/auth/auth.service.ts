@@ -111,6 +111,12 @@ const loginUser = async (payload: {
   if (user.needsPasswordChange)
     throw new AppError(400, "Please, reset your password before logging in!");
 
+  if (user?.provider !== "credentials")
+    throw new AppError(
+      400,
+      `Your account is set up with ${user.provider}! Use ${user.provider} to log in.`
+    );
+
   // Compare the password
   const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
   if (!isPasswordMatch) {
@@ -151,13 +157,86 @@ const loginUser = async (payload: {
   return { accessToken, refreshToken, role: user.role };
 };
 
-const googleLogin = async (idToken: string) => {
-  console.log("TOken", idToken);
+const googleLogin = async (idToken: string, fcmToken?: string) => {
   const decodedToken: DecodedIdToken | null = await firebaseAdmin
     .auth()
-    .verifyIdToken(idToken); // Verify the token
+    .verifyIdToken(idToken);
+  console.log("fcmToken", fcmToken);
+  if (!decodedToken) throw new AppError(400, "login failed!");
 
-  console.log(JSON.stringify(decodedToken));
+  // const image = "";
+  // const name = "";
+  // const email = "";
+  // const country = "AF";
+
+  // const auth = await Auth.findOne({ email });
+
+  // // generate token
+  // const jwtPayload = {
+  //   email: email,
+  //   role: userRoles.user,
+  // } as any;
+  // if (auth) {
+  //   if (auth?.provider !== "google")
+  //     throw new AppError(
+  //       400,
+  //       `Your account is set up with ${auth.provider}! Use ${auth.provider} to log in.`
+  //     );
+  //   jwtPayload.id = auth._id;
+  //   if (fcmToken) await Auth.findByIdAndUpdate(auth._id, { fcmToken });
+  // } else {
+  //   const session = await startSession();
+  //   try {
+  //     session.startTransaction();
+
+  //     const userData = {
+  //       name,
+  //       image,
+  //       email,
+  //     };
+
+  //     const authData = {
+  //       email,
+  //       role: userRoles.user,
+  //       country,
+  //       isAccountVerified: true,
+  //       fcmToken,
+  //       provider: "google",
+  //     } as any;
+
+  //     const user = await User.create(userData);
+  //     authData.user = user._id;
+
+  //     const newAuth = await Auth.create(authData);
+  //     jwtPayload.id = newAuth._id;
+  //     await session.commitTransaction();
+  //   } catch (error: any) {
+  //     await session.abortTransaction();
+  //     throw new AppError(500, error.message || "Error creating moderator!");
+  //   } finally {
+  //     await session.endSession();
+  //   }
+
+  //   const accessToken = jsonwebtoken.sign(
+  //     jwtPayload,
+  //     config.jwt_access_secret as string,
+  //     {
+  //       expiresIn: config.jwt_access_expiration,
+  //     }
+  //   );
+
+  //   const refreshToken = jsonwebtoken.sign(
+  //     jwtPayload,
+  //     config.jwt_refresh_secret as string,
+  //     {
+  //       expiresIn: config.jwt_refresh_expiration,
+  //     }
+  //   );
+
+  //   return { accessToken, refreshToken };
+  // }
+
+  return decodedToken;
 };
 
 const sendOtp = async (payload: { email: string }) => {
@@ -409,6 +488,25 @@ const deleteUser = async (id: string) => {
   }
 };
 
+const changeModeratorRole = async (
+  email: string,
+  role: "Editor" | "Viewer"
+) => {
+  const auth = await Auth.findOne({
+    email,
+  });
+
+  if (!auth) throw new AppError(404, "User not found!");
+
+  const result = await Auth.findByIdAndUpdate(
+    auth._id,
+    { role },
+    { new: true }
+  );
+
+  return result;
+};
+
 const AuthServices = {
   createModerator,
   loginUser,
@@ -419,6 +517,7 @@ const AuthServices = {
   getNewAccessToken,
   deleteUser,
   googleLogin,
+  changeModeratorRole,
 };
 
 export default AuthServices;
