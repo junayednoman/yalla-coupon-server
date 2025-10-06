@@ -498,13 +498,38 @@ const changeModeratorRole = async (
 
   if (!auth) throw new AppError(404, "User not found!");
 
-  const result = await Auth.findByIdAndUpdate(
-    auth._id,
-    { role },
-    { new: true }
-  );
+  const session = await startSession();
 
-  return result;
+  try {
+    session.startTransaction();
+    if (auth.role === userRoles.viewer) {
+      const viewer = await Viewer.findById(auth.user).session(session);
+      if (!viewer) throw new AppError(404, "User not found!");
+
+      await Editor.create([viewer], { session });
+      await Viewer.findByIdAndDelete(auth.user, { session });
+    } else if (auth.role === userRoles.editor) {
+      const editor = await Editor.findById(auth.user).session(session);
+      if (!editor) throw new AppError(404, "User not found!");
+
+      await Viewer.create([editor], { session });
+      await Editor.findByIdAndDelete(auth.user, { session });
+    }
+
+    const result = await Auth.findByIdAndUpdate(
+      auth._id,
+      { role },
+      { new: true, session }
+    ).select("-password");
+
+    await session.commitTransaction();
+    return result;
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(500, error.message || "Something went wrong");
+  } finally {
+    await session.endSession();
+  }
 };
 
 const AuthServices = {
