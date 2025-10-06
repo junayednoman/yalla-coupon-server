@@ -498,27 +498,41 @@ const changeModeratorRole = async (
 
   if (!auth) throw new AppError(404, "User not found!");
 
+  if ((auth.role as string) === role)
+    throw new AppError(400, "User already has this role!");
+
   const session = await startSession();
 
+  let userId = null;
   try {
     session.startTransaction();
     if (auth.role === userRoles.viewer) {
       const viewer = await Viewer.findById(auth.user).session(session);
-      if (!viewer) throw new AppError(404, "User not found!");
+      if (!viewer) throw new AppError(404, "User not found1!");
 
-      await Editor.create([viewer], { session });
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+      const { _id, createdAt, __v, updatedAt, ...editorData } =
+        viewer.toObject();
+
+      const result = await Editor.create([editorData], { session });
+      userId = result[0]._id;
       await Viewer.findByIdAndDelete(auth.user, { session });
     } else if (auth.role === userRoles.editor) {
       const editor = await Editor.findById(auth.user).session(session);
       if (!editor) throw new AppError(404, "User not found!");
 
-      await Viewer.create([editor], { session });
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+      const { _id, createdAt, __v, updatedAt, ...viewerData } =
+        editor.toObject();
+
+      const result = await Viewer.create([viewerData], { session });
+      userId = result[0]._id;
       await Editor.findByIdAndDelete(auth.user, { session });
     }
 
     const result = await Auth.findByIdAndUpdate(
       auth._id,
-      { role },
+      { role, user: userId },
       { new: true, session }
     ).select("-password");
 

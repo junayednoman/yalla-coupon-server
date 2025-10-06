@@ -5,4 +5,7 @@ export interface TViewer {
   image: string;
   isBlocked: boolean;
   isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
 }
