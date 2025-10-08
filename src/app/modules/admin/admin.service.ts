@@ -8,8 +8,23 @@ import { TAdmin } from "./admin.interface";
 import Admin from "./admin.model";
 
 const getAdminProfile = async (email: string) => {
-  const admin = await Admin.findOne({ email }).select("email name image phone");
-  return admin;
+  const auth = await Auth.findOne({ email });
+  if (auth?.role === userRoles.admin) {
+    const admin = await Admin.findOne({ email }).select(
+      "email name image phone"
+    );
+    return admin;
+  } else if (auth?.role === userRoles.editor) {
+    const editor = await Editor.findOne({ email }).select(
+      "email name image phone"
+    );
+    return editor;
+  } else if (auth?.role === userRoles.viewer) {
+    const viewer = await Viewer.findOne({ email }).select(
+      "email name image phone"
+    );
+    return viewer;
+  }
 };
 
 const updateAdminProfile = async (email: string, payload: Partial<TAdmin>) => {
