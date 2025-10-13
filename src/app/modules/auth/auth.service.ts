@@ -7,7 +7,6 @@ import config from "../../config";
 import generateOTP from "../../utils/generateOTP";
 import isUserExist from "../../utils/isUserExist";
 import fs from "fs";
-import path from "path";
 import mongoose, { startSession } from "mongoose";
 import generateRandomString from "../../utils/generateRandomString";
 import axios from "axios";
