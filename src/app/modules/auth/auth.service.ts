@@ -373,19 +373,6 @@ const resetForgottenPassword = async (payload: {
       await axios.post(config.send_email_url as string, emailData);
     });
   }
-
-  // delete uploaded files
-  const folderPath = "uploads";
-  const files = fs.readdirSync(folderPath);
-
-  if (files.length > 0) {
-    files.forEach((file) => {
-      const filePath = path.join(folderPath, file);
-      if (fs.lstatSync(filePath).isFile()) {
-        fs.unlinkSync(filePath);
-      }
-    });
-  }
 };
 
 const changePassword = async (
