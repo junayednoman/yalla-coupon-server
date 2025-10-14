@@ -1,77 +1,52 @@
 import { z } from "zod";
+import { emailZod, passwordZod } from "../../validation/global.validation";
 
 export const loginUserValidationSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .trim()
-    .toLowerCase()
-    .nonempty("Email is required"),
+  email: emailZod,
   password: z
     .string({ message: "Password is required" })
     .min(1, "Password is required"),
   fcmToken: z.string().optional(),
+  isMobile: z.boolean().optional().default(false),
 });
 
-export const googleLoginUserValidationSchema = z.object({
+export type ILoginUser = z.infer<typeof loginUserValidationSchema>;
+
+export const socialLoginZod = z.object({
+  email: emailZod,
+  name: z.string().nonempty("Name is required"),
+  image: z.string().optional(),
   fcmToken: z.string().optional(),
-  idToken: z.string().min(1, "ID token is required"),
+  country: z.string().nonempty("Country is required"),
+  provider: z.enum(["google", "facebook", "apple"]),
+  isMobile: z.boolean().optional().default(false),
 });
+
+export type ISocialLogin = z.infer<typeof socialLoginZod>;
 
 export const emailValidationSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .trim()
-    .toLowerCase()
-    .nonempty("Email is required"),
+  email: emailZod,
 });
 
 export const verifyOtpSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .trim()
-    .toLowerCase()
-    .nonempty("Email is required"),
+  email: emailZod,
   otp: z.string().nonempty("OTP is required"),
   verifyAccount: z.boolean().optional(),
 });
 
 export const resetForgottenPasswordSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .trim()
-    .toLowerCase()
-    .nonempty("Email is required"),
-  password: z
-    .string()
-    .min(7, "Password must be at least 7 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
-    ),
+  email: emailZod,
+  password: passwordZod,
 });
 
 export const changePasswordValidationSchema = z.object({
   oldPassword: z.string().nonempty("Old Password is required"),
-  newPassword: z
-    .string()
-    .min(7, "Password must be at least 7 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
-    ),
+  newPassword: passwordZod,
 });
 
 export const moderatorZodSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  email: emailZod,
   role: z.enum(["Editor", "Viewer"]),
 });
 

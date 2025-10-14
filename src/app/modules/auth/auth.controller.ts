@@ -34,22 +34,9 @@ const loginUser = handleAsyncRequest(async (req, res) => {
   });
 });
 
-const googleLogin = handleAsyncRequest(async (req, res) => {
-  const idToken = req.body.idToken;
-  const result = await AuthServices.googleLogin(idToken);
-  // // set refreshToken in cookie
-  // const day = 24 * 60 * 60 * 1000;
-  // const { refreshToken, accessToken } = result;
-  // const cookieOptions: any = {
-  //   httpOnly: true,
-  //   secure: config.node_env === "production", // Use secure in production
-  //   maxAge: 60 * day,
-  // };
-
-  // if (config.node_env === "production") cookieOptions.sameSite = "none";
-
-  // res.cookie("refreshToken", refreshToken, cookieOptions);
-
+const socialLogin = handleAsyncRequest(async (req, res) => {
+  const payload = req.body;
+  const result = await AuthServices.socialLogin(payload);
   successResponse(res, {
     message: "User logged in successfully!",
     data: result,
@@ -145,7 +132,7 @@ const changeModeratorRole = handleAsyncRequest(async (req: any, res) => {
 const AuthController = {
   createModerator,
   loginUser,
-  googleLogin,
+  socialLogin,
   sendOtp,
   verifyOtp,
   resetForgottenPassword,

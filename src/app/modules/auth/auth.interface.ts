@@ -17,5 +17,5 @@ export type TAuth = {
   fcmToken: string;
   isDeleted: boolean;
   isBlocked: boolean;
-  provider: "credentials" | "google" | "facebook";
+  provider: "credentials" | "google" | "facebook" | "apple";
 };

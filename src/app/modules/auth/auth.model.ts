@@ -36,7 +36,7 @@ const userSchema = new Schema<TAuth>(
     fcmToken: { type: String, trim: true },
     provider: {
       type: String,
-      enum: ["credentials", "google", "facebook"],
+      enum: ["credentials", "google", "facebook", "apple"],
       default: "credentials",
     },
     isDeleted: { type: Boolean, default: false },

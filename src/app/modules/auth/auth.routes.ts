@@ -4,10 +4,10 @@ import {
   changeModeratorRoleValidationSchema,
   changePasswordValidationSchema,
   emailValidationSchema,
-  googleLoginUserValidationSchema,
   loginUserValidationSchema,
   moderatorZodSchema,
   resetForgottenPasswordSchema,
+  socialLoginZod,
   verifyOtpSchema,
 } from "./auth.validation";
 import AuthController from "./auth.controller";
@@ -29,9 +29,9 @@ authRoutes.post(
 );
 
 authRoutes.post(
-  "/google-login",
-  handleZodValidation(googleLoginUserValidationSchema),
-  AuthController.googleLogin
+  "/social-login",
+  handleZodValidation(socialLoginZod),
+  AuthController.socialLogin
 );
 
 authRoutes.post(

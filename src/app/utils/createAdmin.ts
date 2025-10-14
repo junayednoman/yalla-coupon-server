@@ -10,9 +10,9 @@ const createAdmin = async () => {
   const email = config.admin_email;
   try {
     session.startTransaction();
-    const admin = await Admin.findOne({ email });
+    const admin = await Admin.findOne();
     const auth = await Auth.findOne({
-      email,
+      role: userRoles.admin,
       isDeleted: false,
       isBlocked: false,
     });
@@ -39,14 +39,10 @@ const createAdmin = async () => {
       role: userRoles.admin,
       user_type: userRoles.admin,
       user: newAdmin[0]?._id,
-      isAccountVerified: true
-    }
-    await Auth.create(
-      [authData],
-      { session }
-    );
-
-
+      isAccountVerified: true,
+         provider: "credentials",
+    };
+    await Auth.create([authData], { session });
 
     await session.commitTransaction();
     return console.log(`Admin account created`);

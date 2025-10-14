@@ -12,10 +12,9 @@ import generateRandomString from "../../utils/generateRandomString";
 import axios from "axios";
 import { userRoles } from "../../constants/global.constant";
 import Editor from "../editor/editor.model";
-import { TModeratorSignUp } from "./auth.validation";
+import { ILoginUser, ISocialLogin, TModeratorSignUp } from "./auth.validation";
 import Viewer from "../viewer/viewer.model";
-import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
-import { firebaseAdmin } from "../../utils/notification";
+import User from "../user/user.model";
 
 const createModerator = async (payload: TModeratorSignUp) => {
   const auth = await Auth.findOne({
@@ -96,12 +95,7 @@ const createModerator = async (payload: TModeratorSignUp) => {
   }
 };
 
-const loginUser = async (payload: {
-  email: string;
-  password: string;
-  isRemember: boolean;
-  fcmToken?: string;
-}) => {
+const loginUser = async (payload: ILoginUser) => {
   const user = await isUserExist(payload.email);
 
   if (!user.isAccountVerified)
@@ -113,7 +107,7 @@ const loginUser = async (payload: {
   if (user?.provider !== "credentials")
     throw new AppError(
       400,
-      `Your account is set up with ${user.provider}! Use ${user.provider} to log in.`
+      `Your account was set up with ${user.provider}! Use ${user.provider} to log in.`
     );
 
   // Compare the password
@@ -137,7 +131,9 @@ const loginUser = async (payload: {
     jwtPayload,
     config.jwt_access_secret as string,
     {
-      expiresIn: config.jwt_access_expiration,
+      expiresIn: payload.isMobile
+        ? config.jwt_refresh_expiration
+        : config.jwt_access_expiration,
     }
   );
 
@@ -145,7 +141,7 @@ const loginUser = async (payload: {
     jwtPayload,
     config.jwt_refresh_secret as string,
     {
-      expiresIn: payload?.isRemember ? "60d" : "20d",
+      expiresIn: config.jwt_refresh_expiration,
     }
   );
 
@@ -156,86 +152,79 @@ const loginUser = async (payload: {
   return { accessToken, refreshToken, role: user.role };
 };
 
-const googleLogin = async (idToken: string, fcmToken?: string) => {
-  const decodedToken: DecodedIdToken | null = await firebaseAdmin
-    .auth()
-    .verifyIdToken(idToken);
-  console.log("fcmToken", fcmToken);
-  if (!decodedToken) throw new AppError(400, "login failed!");
+const socialLogin = async (payload: ISocialLogin) => {
+  // const decodedToken: DecodedIdToken | null = await firebaseAdmin
+  //   .auth()
+  //   .verifyIdToken(idToken);
+  // console.log("fcmToken", fcmToken);
+  // if (!decodedToken) throw new AppError(400, "login failed!");
 
-  // const image = "";
-  // const name = "";
-  // const email = "";
-  // const country = "AF";
+  const auth = await Auth.findOne({
+    email: payload.email,
+    isAccountVerified: true,
+  });
 
-  // const auth = await Auth.findOne({ email });
+  // generate token
+  const jwtPayload = {
+    email: payload.email,
+    role: userRoles.user,
+  } as any;
 
-  // // generate token
-  // const jwtPayload = {
-  //   email: email,
-  //   role: userRoles.user,
-  // } as any;
-  // if (auth) {
-  //   if (auth?.provider !== "google")
-  //     throw new AppError(
-  //       400,
-  //       `Your account is set up with ${auth.provider}! Use ${auth.provider} to log in.`
-  //     );
-  //   jwtPayload.id = auth._id;
-  //   if (fcmToken) await Auth.findByIdAndUpdate(auth._id, { fcmToken });
-  // } else {
-  //   const session = await startSession();
-  //   try {
-  //     session.startTransaction();
+  if (auth) {
+    if (auth?.provider !== payload.provider)
+      throw new AppError(
+        400,
+        `Your account was set up with ${auth.provider}! Use ${auth.provider} to log in.`
+      );
 
-  //     const userData = {
-  //       name,
-  //       image,
-  //       email,
-  //     };
+    jwtPayload.id = auth._id;
+    if (payload.fcmToken) {
+      await Auth.findByIdAndUpdate(auth._id, { fcmToken: payload.fcmToken });
+    }
+  } else {
+    const session = await startSession();
+    try {
+      session.startTransaction();
 
-  //     const authData = {
-  //       email,
-  //       role: userRoles.user,
-  //       country,
-  //       isAccountVerified: true,
-  //       fcmToken,
-  //       provider: "google",
-  //     } as any;
+      const userData = {
+        name: payload.name,
+        image: payload.image,
+        email: payload.email,
+        country: payload.country,
+      };
 
-  //     const user = await User.create(userData);
-  //     authData.user = user._id;
+      const authData = {
+        email: payload.email,
+        role: userRoles.user,
+        isAccountVerified: true,
+        fcmToken: payload.fcmToken,
+        provider: payload.provider,
+      } as any;
 
-  //     const newAuth = await Auth.create(authData);
-  //     jwtPayload.id = newAuth._id;
-  //     await session.commitTransaction();
-  //   } catch (error: any) {
-  //     await session.abortTransaction();
-  //     throw new AppError(500, error.message || "Error creating moderator!");
-  //   } finally {
-  //     await session.endSession();
-  //   }
+      const user = await User.create(userData);
+      authData.user = user._id;
 
-  //   const accessToken = jsonwebtoken.sign(
-  //     jwtPayload,
-  //     config.jwt_access_secret as string,
-  //     {
-  //       expiresIn: config.jwt_access_expiration,
-  //     }
-  //   );
+      const newAuth = await Auth.create(authData);
+      jwtPayload.id = newAuth._id;
+      await session.commitTransaction();
+    } catch (error: any) {
+      await session.abortTransaction();
+      throw new AppError(500, error.message || "Error creating moderator!");
+    } finally {
+      await session.endSession();
+    }
+  }
 
-  //   const refreshToken = jsonwebtoken.sign(
-  //     jwtPayload,
-  //     config.jwt_refresh_secret as string,
-  //     {
-  //       expiresIn: config.jwt_refresh_expiration,
-  //     }
-  //   );
-
-  //   return { accessToken, refreshToken };
-  // }
-
-  return decodedToken;
+  const accessToken = jsonwebtoken.sign(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    {
+      expiresIn: payload.isMobile
+        ? config.jwt_refresh_expiration
+        : config.jwt_access_expiration,
+    }
+  );
+  return { accessToken };
 };
 
 const sendOtp = async (payload: { email: string }) => {
@@ -541,7 +530,7 @@ const AuthServices = {
   changePassword,
   getNewAccessToken,
   deleteUser,
-  googleLogin,
+  socialLogin,
   changeModeratorRole,
 };
 

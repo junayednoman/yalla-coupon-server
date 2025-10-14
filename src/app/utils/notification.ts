@@ -1,9 +1,9 @@
 import admin from "firebase-admin";
 import { StatusCodes } from "http-status-codes";
-import firebaseJsonFile from "../private/firebase.json";
 import { AppError } from "../classes/appError";
 import { TNotificationPayload } from "../modules/notification/notification.interface";
 import NotificationModel from "../modules/notification/notification.model";
+import firebaseJsonFile from "../private/firebase.json";
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseJsonFile as any),
@@ -33,8 +33,6 @@ export const sendNotification = async (
       },
     });
 
-    console.log(response?.responses, "from send notification");
-
     if (response.successCount) {
       fcmToken?.map(async (token) => {
         try {
@@ -49,15 +47,11 @@ export const sendNotification = async (
       });
     }
 
-    console.log("Response:", response.responses);
-
     return response;
   } catch (error: any) {
-    console.error("Error sending message:", error);
     if (error?.code === "messaging/third-party-auth-error") {
       return null;
     } else {
-      console.error("Error sending message:", error);
       throw new AppError(
         StatusCodes.NOT_IMPLEMENTED,
         error.message || "Failed to send notification"
