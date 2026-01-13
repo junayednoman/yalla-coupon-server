@@ -16,7 +16,12 @@ router.post(
 
 router.get(
   "/",
-  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   couponController.getAllCoupons
 );
 
@@ -34,13 +39,23 @@ router.get(
 
 router.get(
   "/single/:id",
-  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   couponController.getSingleCoupon
 );
 
 router.get(
   "/:storeId",
-  optionalAuthVerify([userRoles.admin, userRoles.editor, userRoles.viewer, userRoles.user]),
+  optionalAuthVerify([
+    userRoles.admin,
+    userRoles.editor,
+    userRoles.viewer,
+    userRoles.user,
+  ]),
   couponController.getCouponsByStoreId
 );
 

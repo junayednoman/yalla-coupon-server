@@ -4,6 +4,7 @@ export interface ICoupon {
   store: ObjectId;
   countries: string[];
   link: string;
+  arabicLink?: string;
   fakeUses: number;
   realUses: number;
   code: string;

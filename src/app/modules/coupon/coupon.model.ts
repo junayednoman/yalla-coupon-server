@@ -7,6 +7,7 @@ const couponSchema = new Schema<ICoupon>(
     store: { type: Types.ObjectId, ref: "Store", required: true },
     countries: [{ type: String, required: true }],
     link: { type: String, required: true },
+    arabicLink: { type: String, required: false },
     fakeUses: { type: Number, default: 0 },
     realUses: { type: Number, default: 0 },
     code: { type: String, required: true },

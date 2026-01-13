@@ -13,8 +13,14 @@ import { TFile } from "../../../interface/file.interface";
 import QueryBuilder from "../../classes/queryBuilder";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
-const userSignUp = async ({ password, ...payload }: IUser & { password: string }) => {
-  const auth = await Auth.findOne({ email: payload.email, isAccountVerified: true });
+const userSignUp = async ({
+  password,
+  ...payload
+}: IUser & { password: string }) => {
+  const auth = await Auth.findOne({
+    email: payload.email,
+    isAccountVerified: true,
+  });
   if (auth) throw new AppError(400, "User already exists!");
 
   payload.country = payload.country.toLowerCase();
@@ -23,15 +29,17 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
   session.startTransaction();
 
   try {
-    const user = await User.findOneAndUpdate({ email: payload.email }, payload, { upsert: true, new: true, session });
+    const user = await User.findOneAndUpdate(
+      { email: payload.email },
+      payload,
+      { upsert: true, new: true, session }
+    );
 
-    // hash password
     const hashedPassword = await bcrypt.hash(
       password,
       Number(config.salt_rounds)
     );
 
-    // prepare auth data
     const otp = generateOTP();
     const hashedOtp = await bcrypt.hash(
       otp.toString(),
@@ -48,33 +56,33 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
       otp: hashedOtp,
       otpExpires,
       otpAttempts: 0,
-    }
+    };
 
-    await Auth.findOneAndUpdate({ email: payload.email }, authData, { upsert: true, session });
+    await Auth.findOneAndUpdate({ email: payload.email }, authData, {
+      upsert: true,
+      session,
+    });
 
-    if (!config.send_email_url) throw new AppError(500, "Email service not configured");
+    if (!config.send_email_url)
+      throw new AppError(500, "Email service not configured");
     if (user) {
-      // send otp
       const emailTemplatePath = "./src/app/emailTemplates/otp.html";
       const subject = `Your OTP Code is Here - Yalla Coupon`;
       const year = new Date().getFullYear().toString();
       fs.readFile(emailTemplatePath, "utf8", async (err, data) => {
         if (err) throw new AppError(500, err.message || "Something went wrong");
         const emailContent = data
-          .replace('{{otp}}', otp.toString())
-          .replace('{{year}}', year);
+          .replace("{{otp}}", otp.toString())
+          .replace("{{year}}", year);
 
         const emailData = {
           to: payload.email,
           subject,
           html: emailContent,
-        }
+        };
 
-        await axios.post(
-          config.send_email_url as string,
-          emailData,
-        )
-      })
+        await axios.post(config.send_email_url as string, emailData);
+      });
     }
 
     await session.commitTransaction();
@@ -87,11 +95,20 @@ const userSignUp = async ({ password, ...payload }: IUser & { password: string }
   }
 };
 
-const updateProfile = async (userId: string, payload: Partial<IUser>, file?: TFile) => {
+const updateProfile = async (
+  userId: string,
+  payload: Partial<IUser>,
+  file?: TFile
+) => {
   const auth = await Auth.findById(userId).populate("user");
   if (file) payload.image = await uploadToS3(file);
-  const result = await User.findOneAndUpdate({ _id: (auth?.user as any)?._id }, payload, { new: true });
-  if ((auth?.user as any).image && payload.image && result) await deleteFromS3((auth?.user as any).image)
+  const result = await User.findOneAndUpdate(
+    { _id: (auth?.user as any)?._id },
+    payload,
+    { new: true }
+  );
+  if ((auth?.user as any).image && payload.image && result)
+    await deleteFromS3((auth?.user as any).image);
   return result;
 };
 
@@ -105,32 +122,44 @@ const getAllUsers = async (query: Record<string, any>) => {
 
   const baseQuery = User.find();
 
-  // handle createdAt=YYYY-MM
   if (query.createdAt) {
-    const [year, month] = query.createdAt.split("-").map(Number);
+    const parts = query.createdAt.split("-").map(Number);
 
-    if (year && month) {
-      const start = new Date(year, month - 1, 1);          // 1st day of the month
-      const end = new Date(year, month, 1);                // 1st day of next month
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      if (year && month && day) {
+        const start = new Date(year, month - 1, day, 0, 0, 0);
+        const end = new Date(year, month - 1, day, 23, 59, 59, 999);
 
-      baseQuery.where({
-        createdAt: { $gte: start, $lt: end },
-      });
+        baseQuery.where({
+          createdAt: { $gte: start, $lte: end },
+        });
+      }
+    } else if (parts.length === 2) {
+      const [year, month] = parts;
+      if (year && month) {
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0, 23, 59, 59, 999);
+
+        baseQuery.where({
+          createdAt: { $gte: start, $lte: end },
+        });
+      }
     }
   }
 
-  const categoryQuery = new QueryBuilder(baseQuery, query)
+  const userQuery = new QueryBuilder(baseQuery, query)
     .search(searchableFields)
     .filter()
     .sort()
     .paginate()
     .selectFields();
 
-  const total = await categoryQuery.countTotal();
-  const result = await categoryQuery.queryModel;
+  const total = await userQuery.countTotal();
+  const result = await userQuery.queryModel;
 
-  const page = query.page || 1;
-  const limit = query.limit || 10;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
   const meta = { total, page, limit };
 
   return { data: result, meta };
@@ -148,8 +177,16 @@ const changeUserStatus = async (id: string) => {
   const session = await startSession();
   session.startTransaction();
   try {
-    await Auth.findOneAndUpdate({ user: user._id }, { isBlocked: user.isBlocked ? false : true }, { new: true, session })
-    const result = await User.findByIdAndUpdate(user._id, { isBlocked: user.isBlocked ? false : true }, { new: true, session });
+    await Auth.findOneAndUpdate(
+      { user: user._id },
+      { isBlocked: user.isBlocked ? false : true },
+      { new: true, session }
+    );
+    const result = await User.findByIdAndUpdate(
+      user._id,
+      { isBlocked: user.isBlocked ? false : true },
+      { new: true, session }
+    );
     await session.commitTransaction();
     return result;
   } catch (error: any) {
@@ -158,7 +195,7 @@ const changeUserStatus = async (id: string) => {
   } finally {
     session.endSession();
   }
-}
+};
 
 const userService = {
   userSignUp,
@@ -166,7 +203,7 @@ const userService = {
   getProfile,
   getAllUsers,
   getSingleUser,
-  changeUserStatus
+  changeUserStatus,
 };
 
 export default userService;
