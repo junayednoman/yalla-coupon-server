@@ -23,7 +23,7 @@ const userSignUp = async ({
   });
   if (auth) throw new AppError(400, "User already exists!");
 
-  payload.country = payload.country.toLowerCase();
+  payload.country = payload.country.toUpperCase();
 
   const session = await startSession();
   session.startTransaction();

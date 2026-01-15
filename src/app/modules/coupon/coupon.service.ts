@@ -10,24 +10,27 @@ import { userRoles } from "../../constants/global.constant";
 const createCoupon = async (payload: ICoupon) => {
   const store = await Store.findById(payload.store);
   if (!store) throw new AppError(400, "Invalid store id");
+  payload.countries.map((country) => (country = country.toUpperCase()));
   const result = await Coupon.create(payload);
   return result;
 };
 
-const getAllCoupons = async (query: Record<string, any>, userId?: string, userRole?: "Admin" | "Editor" | "Viewer" | "User" | undefined) => {
+const getAllCoupons = async (
+  query: Record<string, any>,
+  userId?: string,
+  userRole?: "Admin" | "Editor" | "Viewer" | "User" | undefined
+) => {
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
 
   const pipeline = [];
 
   if (query.store) {
-    pipeline.push(
-      {
-        $match: {
-          store: new mongoose.Types.ObjectId(query.store)
-        }
-      }
-    )
-    delete query.store
+    pipeline.push({
+      $match: {
+        store: new mongoose.Types.ObjectId(query.store),
+      },
+    });
+    delete query.store;
   }
 
   if (userRole === userRoles.user) {
@@ -35,13 +38,13 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
     pipeline.push(
       {
         $match: {
-          countries: { $in: [(auth?.user as any)?.country] }
-        }
+          countries: { $in: [(auth?.user as any)?.country] },
+        },
       },
       {
         $match: {
-          status: "active"
-        }
+          status: "active",
+        },
       },
       {
         $lookup: {
@@ -53,7 +56,7 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
                 $expr: {
                   $and: [
                     { $eq: ["$coupon", "$$couponId"] },
-                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] },
                   ],
                 },
               },
@@ -75,10 +78,10 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
       },
       {
         $project: {
-          favoriteDocs: 0
-        }
+          favoriteDocs: 0,
+        },
       }
-    )
+    );
   }
 
   pipeline.push(
@@ -88,20 +91,20 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
         localField: "store",
         foreignField: "_id",
         as: "store",
-      }
+      },
     },
     {
       $match: {
-        status: "active"
-      }
+        status: "active",
+      },
     }
-  )
+  );
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
     .filter()
     .sort()
-    .paginate()
+    .paginate();
   // .selectFields();
 
   const total = await couponQuery.countTotal();
@@ -110,18 +113,18 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
   const meta = {
     total,
     limit: query.limit || 10,
-    page: query.page || 1
-  }
+    page: query.page || 1,
+  };
 
   if (userRole !== "User") {
     const total = await Coupon.aggregate([
       {
         $group: {
           _id: null,
-          totalCopies: { $sum: "$realUses" }
-        }
-      }
-    ])
+          totalCopies: { $sum: "$realUses" },
+        },
+      },
+    ]);
 
     return { data: result, meta, totalCopies: total[0]?.totalCopies || 10 };
   }
@@ -129,20 +132,21 @@ const getAllCoupons = async (query: Record<string, any>, userId?: string, userRo
   return { data: result, meta };
 };
 
-const getTrendingCoupons = async (query: Record<string, any>, userId?: string) => {
+const getTrendingCoupons = async (
+  query: Record<string, any>,
+  userId?: string
+) => {
+  const { countries: queryCountry, ...restQueries } = query;
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
-  query.sort = "-fakeUses"
-  query.limit = 2
+  query.sort = "-fakeUses";
+  query.limit = 2;
   const auth = await Auth.findById(userId).populate("user", "country");
   const pipeline = [];
 
+  const country =
+    queryCountry?.toUpperCase() || (auth?.user as any)?.country?.toUpperCase();
   if (userId) {
     pipeline.push(
-      {
-        $match: {
-          countries: { $in: [(auth?.user as any)?.country] }
-        }
-      },
       {
         $lookup: {
           from: "favorites",
@@ -153,7 +157,7 @@ const getTrendingCoupons = async (query: Record<string, any>, userId?: string) =
                 $expr: {
                   $and: [
                     { $eq: ["$coupon", "$$couponId"] },
-                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] },
                   ],
                 },
               },
@@ -175,122 +179,136 @@ const getTrendingCoupons = async (query: Record<string, any>, userId?: string) =
       },
       {
         $project: {
-          favoriteDocs: 0
-        }
+          favoriteDocs: 0,
+        },
       }
-    )
+    );
   }
 
   pipeline.push(
+    {
+      $match: {
+        countries: { $in: [country] },
+      },
+    },
     {
       $lookup: {
         from: "stores",
         localField: "store",
         foreignField: "_id",
         as: "store",
-      }
+      },
     },
     {
       $match: {
-        status: "active"
-      }
+        status: "active",
+      },
     },
     {
       $match: {
-        status: "active"
-      }
-    },
-  )
-
-  const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
-    .search(searchableFields)
-    .filter()
-    .sort()
-
-  const result = await couponQuery.execute();
-
-  return { data: result };
-};
-
-const getFeaturedCoupons = async (query: Record<string, any>, userId?: string) => {
-  const searchableFields = ["store.name", "title", "howToUse", "terms"];
-  query.isFeatured = true
-  query.limit = 2
-  const auth = await Auth.findById(userId).populate("user", "country");
-  const pipeline = [];
-
-  if (userId) {
-    pipeline.push(
-      {
-        $match: {
-          countries: { $in: [(auth?.user as any)?.country] }
-        }
+        status: "active",
       },
-      {
-        $match: {
-          status: "active"
-        }
-      },
-      {
-        $lookup: {
-          from: "favorites",
-          let: { couponId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$coupon", "$$couponId"] },
-                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] }
-                  ],
-                },
-              },
-            },
-          ],
-          as: "favoriteDocs",
-        },
-      },
-      {
-        $addFields: {
-          isFavorite: {
-            $cond: {
-              if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
-              then: true,
-              else: false,
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          favoriteDocs: 0
-        }
-      }
-    )
-  }
-
-  pipeline.push(
-    {
-      $lookup: {
-        from: "stores",
-        localField: "store",
-        foreignField: "_id",
-        as: "store",
-      }
     }
-  )
+  );
 
-  const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
+  const couponQuery = new AggregationBuilder(Coupon, pipeline, restQueries)
     .search(searchableFields)
     .filter()
-    .sort()
+    .sort();
 
   const result = await couponQuery.execute();
 
   return { data: result };
 };
 
-const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) => {
+const getFeaturedCoupons = async (
+  query: Record<string, any>,
+  userId?: string
+) => {
+  const { countries: queryCountry, ...restQueries } = query;
+  const searchableFields = ["store.name", "title", "howToUse", "terms"];
+  query.isFeatured = true;
+  query.limit = 2;
+  const auth = await Auth.findById(userId).populate("user", "country");
+  const pipeline = [];
+  const country =
+    queryCountry?.toUpperCase() || (auth?.user as any)?.country?.toUpperCase();
+
+  if (userId) {
+    pipeline.push(
+      {
+        $match: {
+          status: "active",
+        },
+      },
+      {
+        $lookup: {
+          from: "favorites",
+          let: { couponId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$coupon", "$$couponId"] },
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "favoriteDocs",
+        },
+      },
+      {
+        $addFields: {
+          isFavorite: {
+            $cond: {
+              if: { $gt: [{ $size: "$favoriteDocs" }, 0] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          favoriteDocs: 0,
+        },
+      }
+    );
+  }
+
+  pipeline.push(
+    {
+      $match: {
+        countries: { $in: [country] },
+      },
+    },
+    {
+      $lookup: {
+        from: "stores",
+        localField: "store",
+        foreignField: "_id",
+        as: "store",
+      },
+    }
+  );
+
+  const couponQuery = new AggregationBuilder(Coupon, pipeline, restQueries)
+    .search(searchableFields)
+    .filter()
+    .sort();
+
+  const result = await couponQuery.execute();
+
+  return { data: result };
+};
+
+const getCouponsByStoreId = async (
+  storeId: string,
+  query: Record<string, any>
+) => {
   const searchableFields = ["title", "subtitle", "howToUse", "terms", "code"];
   query.store = new mongoose.Types.ObjectId(storeId);
 
@@ -309,20 +327,19 @@ const getCouponsByStoreId = async (storeId: string, query: Record<string, any>) 
   const meta = {
     total,
     limit: query.limit || 10,
-    page: query.page || 1
-  }
+    page: query.page || 1,
+  };
 
   return { data: result, meta };
-}
+};
 
 const getSingleCoupon = async (couponId: string) => {
-  const coupon = await Coupon.findById(couponId)
-    .populate([
-      {
-        path: "store",
-        select: "name image"
-      },
-    ])
+  const coupon = await Coupon.findById(couponId).populate([
+    {
+      path: "store",
+      select: "name image",
+    },
+  ]);
   return coupon;
 };
 
@@ -338,7 +355,11 @@ const updateCoupon = async (couponId: string, payload: Partial<ICoupon>) => {
 const copyCoupon = async (couponId: string) => {
   const coupon = await Coupon.findById(couponId);
   if (!coupon) throw new AppError(404, "Coupon not found");
-  const result = await Coupon.findByIdAndUpdate(couponId, { $inc: { realUses: 1 } }, { new: true });
+  const result = await Coupon.findByIdAndUpdate(
+    couponId,
+    { $inc: { realUses: 1 } },
+    { new: true }
+  );
   return result;
 };
 
@@ -352,9 +373,13 @@ const deleteCoupon = async (couponId: string) => {
 const toggleFeaturedStatus = async (id: string) => {
   const coupon = await Coupon.findById(id);
   if (!coupon) throw new AppError(404, "Coupon not found");
-  const result = await Coupon.findByIdAndUpdate(id, { $set: { isFeatured: !coupon.isFeatured } }, { new: true });
+  const result = await Coupon.findByIdAndUpdate(
+    id,
+    { $set: { isFeatured: !coupon.isFeatured } },
+    { new: true }
+  );
   return result;
-}
+};
 
 const couponService = {
   createCoupon,
@@ -366,7 +391,7 @@ const couponService = {
   copyCoupon,
   deleteCoupon,
   toggleFeaturedStatus,
-  getCouponsByStoreId
+  getCouponsByStoreId,
 };
 
 export default couponService;

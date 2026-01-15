@@ -190,7 +190,7 @@ const socialLogin = async (payload: ISocialLogin) => {
         name: payload.name,
         image: payload.image,
         email: payload.email,
-        country: payload.country,
+        country: payload.country.toUpperCase(),
       };
 
       const authData = {
