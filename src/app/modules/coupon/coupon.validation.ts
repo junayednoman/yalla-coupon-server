@@ -14,6 +14,7 @@ export const couponZodSchema = z.object({
   validity: z.string().min(1, "Validity is required"),
   type: z.enum(["free", "premium"]),
   applicableUserType: z.enum(["FIRST_TIME", "REPEAT", "BOTH"]),
+  isFeatured: z.boolean().optional(),
   howToUse: z
     .array(z.string().min(1, "How to use step is required"))
     .min(1, "At least one how-to-use step is required"),
