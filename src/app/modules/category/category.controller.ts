@@ -1,4 +1,3 @@
-import { TFile } from "../../../interface/file.interface";
 import { TRequest } from "../../interface/global.interface";
 import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { successResponse } from "../../utils/successResponse";
@@ -7,7 +6,7 @@ import categoryService from "./category.service";
 const createCategory = handleAsyncRequest(async (req: TRequest, res) => {
   successResponse(res, {
     message: "Category created successfully!",
-    data: await categoryService.createCategory(req.body, req.file as TFile),
+    data: await categoryService.createCategory(req.body, req.files as any),
     status: 201,
   });
 });
@@ -22,7 +21,11 @@ const getAllCategories = handleAsyncRequest(async (req: TRequest, res) => {
 const updateCategory = handleAsyncRequest(async (req: TRequest, res) => {
   successResponse(res, {
     message: "Category updated successfully!",
-    data: await categoryService.updateCategory(req.params.id, req.body, req.file),
+    data: await categoryService.updateCategory(
+      req.params.id,
+      req.body,
+      req.files as any,
+    ),
   });
 });
 

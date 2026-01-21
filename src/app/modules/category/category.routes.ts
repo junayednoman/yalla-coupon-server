@@ -11,7 +11,10 @@ const router = Router();
 router.post(
   "/",
   authVerify([userRoles.admin]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(CategoryValidationSchema, { formData: true }),
   categoryController.createCategory,
 );
@@ -21,7 +24,10 @@ router.get("/", categoryController.getAllCategories);
 router.put(
   "/:id",
   authVerify([userRoles.admin]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(CategoryValidationSchema.partial(), { formData: true }),
   categoryController.updateCategory,
 );

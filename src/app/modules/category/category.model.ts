@@ -6,6 +6,7 @@ const CategorySchema = new Schema<TCategory>(
     name: { type: String, required: true },
     arabicName: { type: String, required: true },
     image: { type: String, required: true },
+    arabicImage: { type: String, required: true },
   },
   {
     timestamps: true,
