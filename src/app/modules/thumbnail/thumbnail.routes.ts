@@ -11,9 +11,12 @@ const router = Router();
 router.post(
   "/",
   authVerify([userRoles.admin, userRoles.editor]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(thumbnailZodSchema, { formData: true }),
-  thumbnailController.addThumbnail
+  thumbnailController.addThumbnail,
 );
 
 router.get("/", thumbnailController.getAllThumbnails);
@@ -23,14 +26,18 @@ router.get("/:id", thumbnailController.getThumbnail);
 router.put(
   "/:id",
   authVerify([userRoles.admin, userRoles.editor]),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(thumbnailZodSchema.partial(), { formData: true }),
-  thumbnailController.updateThumbnail
+  thumbnailController.updateThumbnail,
 );
 
 router.delete(
   "/:id",
   authVerify([userRoles.admin]),
-  thumbnailController.deleteThumbnail
+  thumbnailController.deleteThumbnail,
 );
 
 export const thumbnailRoutes = router;

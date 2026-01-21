@@ -3,12 +3,17 @@ import { TFile } from "../../../interface/file.interface";
 
 export interface IStore {
   name: string;
+  arabicName: string;
   image: string;
-  thumbnail: string
-  categories: ObjectId[]
+  arabicImage: string;
+  thumbnail: string;
+  arabicThumbnail: string;
+  categories: ObjectId[];
 }
 
 export interface TStoreFiles {
-  image: TFile[]
-  thumbnail: TFile[]
+  image: TFile[];
+  arabicImage: TFile[];
+  thumbnail: TFile[];
+  arabicThumbnail: TFile[];
 }

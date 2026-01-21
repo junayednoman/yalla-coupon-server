@@ -4,6 +4,7 @@ import { IThumbnail } from "./thumbnail.interface";
 const thumbnailSchema = new Schema<IThumbnail>(
   {
     image: { type: String, required: true },
+    arabicImage: { type: String, required: false },
     coupon: { type: Types.ObjectId, ref: "Coupon", required: true },
   },
   {

@@ -9,12 +9,16 @@ export interface ICoupon {
   realUses: number;
   code: string;
   title: string;
+  arabicTitle: string;
   subtitle: string;
+  arabicSubtitle: string;
   validity: string;
   type: "free" | "premium";
   status: "active" | "expired";
   applicableUserType: "FIRST_TIME" | "REPEAT" | "BOTH";
   howToUse: string[];
+  arabicHowToUse: string[];
   terms: string[];
+  arabicTerms: string[];
   isFeatured?: boolean;
 }

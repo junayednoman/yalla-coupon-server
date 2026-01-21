@@ -20,6 +20,14 @@ const getAllStores = handleAsyncRequest(async (req: TRequest, res) => {
   });
 });
 
+const getTopStores = handleAsyncRequest(async (req: TRequest, res) => {
+  const result = await storeService.getTopStores();
+  successResponse(res, {
+    message: "Stores retrieved successfully!",
+    data: result,
+  });
+});
+
 const getSingleStore = handleAsyncRequest(async (req: TRequest, res) => {
   const result = await storeService.getSingleStore(req.params.id);
   successResponse(res, {
@@ -29,7 +37,11 @@ const getSingleStore = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const updateStore = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await storeService.updateStore(req.params.id, req.body, req.files as any);
+  const result = await storeService.updateStore(
+    req.params.id,
+    req.body,
+    req.files as any
+  );
   successResponse(res, {
     message: "Store updated successfully!",
     data: result,
@@ -47,6 +59,7 @@ const deleteStore = handleAsyncRequest(async (req: TRequest, res) => {
 const storeController = {
   createStore,
   getAllStores,
+  getTopStores,
   getSingleStore,
   updateStore,
   deleteStore,

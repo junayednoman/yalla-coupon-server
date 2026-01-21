@@ -1,11 +1,10 @@
-import { TFile } from "../../../interface/file.interface";
 import { TRequest } from "../../interface/global.interface";
 import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { successResponse } from "../../utils/successResponse";
 import bannerService from "./banner.service";
 
 const createBanner = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await bannerService.createBanner(req.body, req.file as TFile);
+  const result = await bannerService.createBanner(req.body, req.files as any);
   successResponse(res, {
     message: "Banner created successfully!",
     data: result,
@@ -30,7 +29,11 @@ const getSingleBanner = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const updateBanner = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await bannerService.updateBanner(req.params.id, req.body, req.file);
+  const result = await bannerService.updateBanner(
+    req.params.id,
+    req.body,
+    req.files as any,
+  );
   successResponse(res, {
     message: "Banner updated successfully!",
     data: result,

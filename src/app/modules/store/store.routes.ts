@@ -13,37 +13,37 @@ router.post(
   authVerify([userRoles.admin]),
   upload.fields([
     { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
+    { name: "arabicThumbnail", maxCount: 1 },
   ]),
   handleZodValidation(storeZodSchema, { formData: true }),
-  storeController.createStore
+  storeController.createStore,
 );
 
-router.get(
-  "/",
-  storeController.getAllStores
-);
+router.get("/", storeController.getAllStores);
 
-router.get(
-  "/:id",
-  storeController.getSingleStore
-);
+router.get("/top", storeController.getTopStores);
+
+router.get("/:id", storeController.getSingleStore);
 
 router.put(
   "/:id",
   authVerify([userRoles.admin]),
   upload.fields([
     { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
+    { name: "arabicThumbnail", maxCount: 1 },
   ]),
   handleZodValidation(storeZodSchema.partial(), { formData: true }),
-  storeController.updateStore
+  storeController.updateStore,
 );
 
 router.delete(
   "/:id",
   authVerify([userRoles.admin]),
-  storeController.deleteStore
+  storeController.deleteStore,
 );
 
 export const storeRoutes = router;

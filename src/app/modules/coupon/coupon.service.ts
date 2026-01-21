@@ -18,7 +18,7 @@ const createCoupon = async (payload: ICoupon) => {
 const getAllCoupons = async (
   query: Record<string, any>,
   userId?: string,
-  userRole?: "Admin" | "Editor" | "Viewer" | "User" | undefined
+  userRole?: "Admin" | "Editor" | "Viewer" | "User" | undefined,
 ) => {
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
 
@@ -80,7 +80,7 @@ const getAllCoupons = async (
         $project: {
           favoriteDocs: 0,
         },
-      }
+      },
     );
   }
 
@@ -97,7 +97,7 @@ const getAllCoupons = async (
       $match: {
         status: "active",
       },
-    }
+    },
   );
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
@@ -134,7 +134,7 @@ const getAllCoupons = async (
 
 const getTrendingCoupons = async (
   query: Record<string, any>,
-  userId?: string
+  userId?: string,
 ) => {
   const { countries: queryCountry, ...restQueries } = query;
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
@@ -181,7 +181,7 @@ const getTrendingCoupons = async (
         $project: {
           favoriteDocs: 0,
         },
-      }
+      },
     );
   }
 
@@ -208,7 +208,7 @@ const getTrendingCoupons = async (
       $match: {
         status: "active",
       },
-    }
+    },
   );
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, restQueries)
@@ -223,7 +223,7 @@ const getTrendingCoupons = async (
 
 const getFeaturedCoupons = async (
   query: Record<string, any>,
-  userId?: string
+  userId?: string,
 ) => {
   const { countries: queryCountry, ...restQueries } = query;
   const searchableFields = ["store.name", "title", "howToUse", "terms"];
@@ -275,7 +275,7 @@ const getFeaturedCoupons = async (
         $project: {
           favoriteDocs: 0,
         },
-      }
+      },
     );
   }
 
@@ -292,7 +292,7 @@ const getFeaturedCoupons = async (
         foreignField: "_id",
         as: "store",
       },
-    }
+    },
   );
 
   const couponQuery = new AggregationBuilder(Coupon, pipeline, restQueries)
@@ -307,7 +307,7 @@ const getFeaturedCoupons = async (
 
 const getCouponsByStoreId = async (
   storeId: string,
-  query: Record<string, any>
+  query: Record<string, any>,
 ) => {
   const searchableFields = ["title", "subtitle", "howToUse", "terms", "code"];
   query.store = new mongoose.Types.ObjectId(storeId);
@@ -358,7 +358,7 @@ const copyCoupon = async (couponId: string) => {
   const result = await Coupon.findByIdAndUpdate(
     couponId,
     { $inc: { realUses: 1 } },
-    { new: true }
+    { new: true },
   );
   return result;
 };
@@ -376,7 +376,7 @@ const toggleFeaturedStatus = async (id: string) => {
   const result = await Coupon.findByIdAndUpdate(
     id,
     { $set: { isFeatured: !coupon.isFeatured } },
-    { new: true }
+    { new: true },
   );
   return result;
 };

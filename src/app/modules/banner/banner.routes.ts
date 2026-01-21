@@ -11,11 +11,14 @@ const router = Router();
 router.post(
   "/",
   authVerify([userRoles.admin, userRoles.editor]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(bannerZodSchema, {
     formData: true,
   }),
-  bannerController.createBanner
+  bannerController.createBanner,
 );
 
 router.get(
@@ -26,7 +29,7 @@ router.get(
     userRoles.viewer,
     userRoles.user,
   ]),
-  bannerController.getAllBanners
+  bannerController.getAllBanners,
 );
 
 router.get(
@@ -37,21 +40,24 @@ router.get(
     userRoles.viewer,
     userRoles.user,
   ]),
-  bannerController.getSingleBanner
+  bannerController.getSingleBanner,
 );
 
 router.put(
   "/:id",
   authVerify([userRoles.admin, userRoles.editor]),
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "arabicImage", maxCount: 1 },
+  ]),
   handleZodValidation(bannerZodSchema.partial(), { formData: true }),
-  bannerController.updateBanner
+  bannerController.updateBanner,
 );
 
 router.delete(
   "/:id",
   authVerify([userRoles.admin]),
-  bannerController.deleteBanner
+  bannerController.deleteBanner,
 );
 
 export const bannerRoutes = router;

@@ -1,7 +1,4 @@
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { S3Client } from "@aws-sdk/client-s3";
 import { AppError } from "../classes/appError";
 import config from "../config";

@@ -1,11 +1,13 @@
-import { TFile } from "../../../interface/file.interface";
 import { TRequest } from "../../interface/global.interface";
 import handleAsyncRequest from "../../utils/handleAsyncRequest";
 import { successResponse } from "../../utils/successResponse";
 import thumbnailService from "./thumbnail.service";
 
 const addThumbnail = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await thumbnailService.addThumbnail(req.body, req.file as TFile);
+  const result = await thumbnailService.addThumbnail(
+    req.body,
+    req.files as any,
+  );
   successResponse(res, {
     message: "Thumbnail added successfully!",
     data: result,
@@ -30,7 +32,11 @@ const getThumbnail = handleAsyncRequest(async (req: TRequest, res) => {
 });
 
 const updateThumbnail = handleAsyncRequest(async (req: TRequest, res) => {
-  const result = await thumbnailService.updateThumbnail(req.params.id, req.body, req.file);
+  const result = await thumbnailService.updateThumbnail(
+    req.params.id,
+    req.body,
+    req.files as any,
+  );
   successResponse(res, {
     message: "Thumbnail updated successfully!",
     data: result,
@@ -50,7 +56,7 @@ const thumbnailController = {
   getThumbnail,
   updateThumbnail,
   deleteThumbnail,
-  getAllThumbnails
+  getAllThumbnails,
 };
 
 export default thumbnailController;

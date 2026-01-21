@@ -1,20 +1,22 @@
 import Banner from "./banner.model";
 import { AppError } from "../../classes/appError";
-import { IBanner } from "./banner.interface";
+import { IBanner, TBannerFiles } from "./banner.interface";
 import QueryBuilder from "../../classes/queryBuilder";
-import { TFile } from "../../../interface/file.interface";
 import Coupon from "../coupon/coupon.model";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
-const createBanner = async (payload: IBanner, file: TFile) => {
+const createBanner = async (payload: IBanner, files: TBannerFiles) => {
   const coupon = await Coupon.findById(payload.coupon.toString());
   if (!coupon) {
     throw new AppError(400, "Invalid coupon id");
   }
 
-  if (!file) throw new AppError(400, "Image is required!");
+  if (!files?.image.length) throw new AppError(400, "Image is required!");
+  if (!files?.arabicImage.length)
+    throw new AppError(400, "Arabic image is required!");
 
-  payload.image = await uploadToS3(file);
+  payload.image = await uploadToS3(files.image[0]);
+  payload.arabicImage = await uploadToS3(files.arabicImage[0]);
   const result = await Banner.create(payload);
   return result;
 };
@@ -27,7 +29,7 @@ const getAllBanners = async (query: Record<string, any>) => {
     .filter()
     .sort()
     .paginate()
-    .selectFields()
+    .selectFields();
 
   const total = await bannerQuery.countTotal();
   const result = await bannerQuery.queryModel.populate("coupon", "code type");
@@ -42,17 +44,22 @@ const getAllBanners = async (query: Record<string, any>) => {
 const getSingleBanner = async (bannerId: string) => {
   const banner = await Banner.findById(bannerId).populate([
     {
-      path: "coupon", populate: {
+      path: "coupon",
+      populate: {
         path: "store",
-      }
+      },
     },
   ]);
   return banner;
 };
 
-const updateBanner = async (bannerId: string, payload: Partial<IBanner>, file?: TFile) => {
+const updateBanner = async (
+  bannerId: string,
+  payload: Partial<IBanner>,
+  files?: TBannerFiles,
+) => {
   if (payload.coupon) {
-    const coupon = await Coupon.findById(payload.coupon)
+    const coupon = await Coupon.findById(payload.coupon);
     if (!coupon) {
       throw new AppError(400, "Invalid coupon id");
     }
@@ -62,13 +69,22 @@ const updateBanner = async (bannerId: string, payload: Partial<IBanner>, file?: 
     throw new AppError(404, "Banner not found");
   }
 
-  if (file) payload.image = await uploadToS3(file);
+  if (files?.image?.length) payload.image = await uploadToS3(files.image[0]);
+  if (files?.arabicImage?.length)
+    payload.arabicImage = await uploadToS3(files.image[0]);
   const result = await Banner.findByIdAndUpdate(bannerId, payload, {
     new: true,
     runValidators: true,
   });
 
-  if (banner.image && payload.image && result) await deleteFromS3(banner.image);
+  if (result) {
+    if (banner.image && payload.image) {
+      await deleteFromS3(banner.image);
+    }
+    if (banner.arabicImage && payload.arabicImage) {
+      await deleteFromS3(banner.arabicImage);
+    }
+  }
 
   return result;
 };
@@ -77,7 +93,10 @@ const deleteBanner = async (bannerId: string) => {
   const banner = await Banner.findById(bannerId);
   if (!banner) throw new AppError(404, "Banner not found");
   const result = await Banner.findByIdAndDelete(bannerId);
-  if (result) await deleteFromS3(banner.image)
+  if (result) {
+    await deleteFromS3(banner.image);
+    await deleteFromS3(banner.arabicImage);
+  }
   return result;
 };
 

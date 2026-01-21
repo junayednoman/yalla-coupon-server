@@ -13,26 +13,23 @@ router.post(
   authVerify([userRoles.admin]),
   upload.single("image"),
   handleZodValidation(CategoryValidationSchema, { formData: true }),
-  categoryController.createCategory
+  categoryController.createCategory,
 );
 
-router.get(
-  "/",
-  categoryController.getAllCategories
-);
+router.get("/", categoryController.getAllCategories);
 
 router.put(
   "/:id",
   authVerify([userRoles.admin]),
   upload.single("image"),
-  handleZodValidation(CategoryValidationSchema, { formData: true }),
-  categoryController.updateCategory
+  handleZodValidation(CategoryValidationSchema.partial(), { formData: true }),
+  categoryController.updateCategory,
 );
 
 router.delete(
   "/:id",
   authVerify([userRoles.admin]),
-  categoryController.deleteCategory
+  categoryController.deleteCategory,
 );
 
 export default router;
