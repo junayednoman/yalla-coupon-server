@@ -160,6 +160,11 @@ const deleteMyNotifications = async (id: string) => {
   return result;
 };
 
+const deleteSingleAlert = async (id: string) => {
+  const result = await Alert.findByIdAndDelete(id);
+  return result;
+}
+
 export const notificationServices = {
   getAllNotifications,
   markAllAsRead,
@@ -169,4 +174,5 @@ export const notificationServices = {
   deleteMyNotifications,
   sendAlert,
   getAllAlerts,
+  deleteSingleAlert,
 };
