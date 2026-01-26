@@ -65,9 +65,6 @@ const updateCategory = async (
     throw new AppError(400, "Invalid category ID!");
   }
 
-  const existingWithName = await Category.findOne({ name: payload.name });
-  if (existingWithName) throw new AppError(400, "Category already exists!");
-
   if (files?.image?.length) payload.image = await uploadToS3(files.image[0]);
   if (files?.arabicImage?.length)
     payload.arabicImage = await uploadToS3(files.image[0]);
