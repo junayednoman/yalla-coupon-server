@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import { z } from "zod";
 
-export const thumbnailZodSchema = z.object({
+export const PopupZodSchema = z.object({
+  title: z.string().optional(),
+  arabicTitle: z.string().optional(),
   coupon: z
     .string()
     .optional()

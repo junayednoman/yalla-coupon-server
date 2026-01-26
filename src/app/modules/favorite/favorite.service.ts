@@ -29,13 +29,14 @@ const getAllFavorites = async (query: Record<string, any>, id: string) => {
     .filter()
     .sort()
     .paginate()
-    .selectFields()
+    .selectFields();
 
   const total = await favoriteQuery.countTotal();
   const result = await favoriteQuery.queryModel.populate([
     {
-      path: "coupon", select: "title arabicTitle validity fakeUses code",
-      populate: { path: "store", select: "name arabicName image arabicImage" }
+      path: "coupon",
+      select: "title arabicTitle validity fakeUses code",
+      populate: { path: "store", select: "name arabicName image arabicImage" },
     },
   ]);
 

@@ -9,7 +9,7 @@ const bannerSchema = new Schema<IBanner>(
     arabicTitle: { type: String, required: false },
     subTitle: { type: String, required: true },
     arabicSubTitle: { type: String, required: false },
-    coupon: { type: Types.ObjectId, ref: "Coupon", required: true },
+    coupon: { type: Types.ObjectId, ref: "Coupon", required: false },
   },
   {
     timestamps: true,

@@ -15,7 +15,7 @@ const notificationSchema = new mongoose.Schema<TNotificationPayload>(
     coupon: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Coupon",
-      required: true,
+      required: false,
     },
     countries: { type: [String], required: true },
     hasRead: { type: Boolean, default: false },

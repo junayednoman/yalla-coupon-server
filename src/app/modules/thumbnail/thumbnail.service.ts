@@ -8,9 +8,11 @@ const addThumbnail = async (payload: IThumbnail, files: TThumbnailFiles) => {
   if (!files.image.length) throw new AppError(400, "Image is required!");
   if (!files.arabicImage.length)
     throw new AppError(400, "Arabic image is required!");
-  const coupon = await Coupon.findById(payload.coupon);
-  if (!coupon) {
-    throw new AppError(400, "Invalid coupon id");
+  if (payload.coupon) {
+    const coupon = await Coupon.findById(payload.coupon);
+    if (!coupon) {
+      throw new AppError(400, "Invalid coupon id");
+    }
   }
   const image = await uploadToS3(files.image[0]);
   const arabicImage = await uploadToS3(files.arabicImage[0]);

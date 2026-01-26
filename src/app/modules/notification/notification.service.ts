@@ -11,32 +11,34 @@ import Alert from "../alert/alert.model";
 import { sendNotification } from "../../utils/notification";
 
 const sendAlert = async (payload: Partial<TNotificationPayload>) => {
-  const coupon = await Coupon.findById(payload.coupon);
-  if (!coupon) throw new AppError(400, "Invalid coupon id");
+  if (payload.coupon) {
+    const coupon = await Coupon.findById(payload.coupon);
+    if (!coupon) throw new AppError(400, "Invalid coupon id");
+  }
   const pipeline: PipelineStage[] = [
     {
       $match: {
-        role: userRoles.user
-      }
+        role: userRoles.user,
+      },
     },
     {
       $lookup: {
         from: "users",
         localField: "user",
         foreignField: "_id",
-        as: "user"
-      }
-    }
+        as: "user",
+      },
+    },
   ];
 
   if (payload.countries!.length > 0 && !payload.countries!.includes("all")) {
     pipeline.push({
       $match: {
         "user.country": {
-          $in: payload.countries
-        }
-      }
-    })
+          $in: payload.countries,
+        },
+      },
+    });
   }
 
   const users = await Auth.aggregate(pipeline);
@@ -51,12 +53,15 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
       const notificationData = {
         receiver: user._id,
         type: "alert",
-        ...payload
-      }
+        ...payload,
+      };
 
       const fcmToken = user.fcmToken;
       if (fcmToken) {
-        await sendNotification([fcmToken], notificationData as TNotificationPayload)
+        await sendNotification(
+          [fcmToken],
+          notificationData as TNotificationPayload,
+        );
       }
     }
     await session.commitTransaction();
@@ -66,28 +71,25 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
   } finally {
     await session.endSession();
   }
-}
+};
 
 const createNotification = async (id: string) => {
-  const otp = generateOTP()
-  const coupon = await Coupon.find()
+  const otp = generateOTP();
+  const coupon = await Coupon.find();
   const notificationData = {
     receiver: id as unknown as ObjectId,
     title: `New Notification-${otp}`,
-    body: 'You have a new notification',
+    body: "You have a new notification",
     coupon: coupon[0]._id,
-    countries: ["all"]
-  }
+    countries: ["all"],
+  };
   const result = await Notification.create(notificationData);
   return result;
-}
+};
 
 const getAllNotifications = async (query: Record<string, any>, id: string) => {
-  const searchableFields = ["title",];
-  const userQuery = new QueryBuilder(
-    Notification.find({ receiver: id }),
-    query
-  )
+  const searchableFields = ["title"];
+  const userQuery = new QueryBuilder(Notification.find({ receiver: id }), query)
     .search(searchableFields)
     .filter()
     .sort()
@@ -95,22 +97,18 @@ const getAllNotifications = async (query: Record<string, any>, id: string) => {
     .selectFields();
 
   const total = await userQuery.countTotal();
-  const result = await userQuery.queryModel
-
+  const result = await userQuery.queryModel;
 
   const page = query.page || 1;
   const limit = query.limit || 10;
   const meta = { total, page, limit };
 
   return { data: result, meta };
-}
+};
 
 const getAllAlerts = async (query: Record<string, any>) => {
   const searchableFields = ["title"];
-  const userQuery = new QueryBuilder(
-    Alert.find(),
-    query
-  )
+  const userQuery = new QueryBuilder(Alert.find(), query)
     .search(searchableFields)
     .filter()
     .sort()
@@ -119,7 +117,14 @@ const getAllAlerts = async (query: Record<string, any>) => {
 
   const total = await userQuery.countTotal();
   const result = await userQuery.queryModel.populate([
-    { path: "coupon", populate: { path: "store", select: "name image", populate: { path: "categories", select: "name" } } },
+    {
+      path: "coupon",
+      populate: {
+        path: "store",
+        select: "name image",
+        populate: { path: "categories", select: "name" },
+      },
+    },
   ]);
 
   const page = query.page || 1;
@@ -127,26 +132,41 @@ const getAllAlerts = async (query: Record<string, any>) => {
   const meta = { total, page, limit };
 
   return { data: result, meta };
-}
+};
 
 const markAllAsRead = async (id: string) => {
-  const result = await Notification.updateMany({ hasRead: false, receiver: id }, { hasRead: true });
+  const result = await Notification.updateMany(
+    { hasRead: false, receiver: id },
+    { hasRead: true },
+  );
   return result;
-}
+};
 
 const getUnreadNotificationCount = async (id: string) => {
-  const result = await Notification.countDocuments({ hasRead: false, receiver: id });
+  const result = await Notification.countDocuments({
+    hasRead: false,
+    receiver: id,
+  });
   return result;
-}
+};
 
 const deleteSingleNotification = async (id: string) => {
   const result = await Notification.findByIdAndDelete(id);
   return result;
-}
+};
 
 const deleteMyNotifications = async (id: string) => {
   const result = await Notification.deleteMany({ receiver: id });
   return result;
-}
+};
 
-export const notificationServices = { getAllNotifications, markAllAsRead, createNotification, getUnreadNotificationCount, deleteSingleNotification, deleteMyNotifications, sendAlert, getAllAlerts };
+export const notificationServices = {
+  getAllNotifications,
+  markAllAsRead,
+  createNotification,
+  getUnreadNotificationCount,
+  deleteSingleNotification,
+  deleteMyNotifications,
+  sendAlert,
+  getAllAlerts,
+};

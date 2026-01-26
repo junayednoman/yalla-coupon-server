@@ -1,8 +1,10 @@
 import mongoose, { Schema, Types } from "mongoose";
-import { IThumbnail } from "./thumbnail.interface";
+import { IPopup } from "./popup.interface";
 
-const thumbnailSchema = new Schema<IThumbnail>(
+const PopupSchema = new Schema<IPopup>(
   {
+    title: { type: String, required: false },
+    arabicTitle: { type: String, required: false },
     image: { type: String, required: true },
     arabicImage: { type: String, required: false },
     coupon: { type: Types.ObjectId, ref: "Coupon", required: false },
@@ -12,5 +14,5 @@ const thumbnailSchema = new Schema<IThumbnail>(
   },
 );
 
-const Thumbnail = mongoose.model<IThumbnail>("Thumbnail", thumbnailSchema);
-export default Thumbnail;
+const Popup = mongoose.model<IPopup>("Popup", PopupSchema);
+export default Popup;

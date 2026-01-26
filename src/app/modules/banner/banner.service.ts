@@ -6,9 +6,11 @@ import Coupon from "../coupon/coupon.model";
 import { deleteFromS3, uploadToS3 } from "../../utils/awss3";
 
 const createBanner = async (payload: IBanner, files: TBannerFiles) => {
-  const coupon = await Coupon.findById(payload.coupon.toString());
-  if (!coupon) {
-    throw new AppError(400, "Invalid coupon id");
+  if (payload.coupon) {
+    const coupon = await Coupon.findById(payload.coupon.toString());
+    if (!coupon) {
+      throw new AppError(400, "Invalid coupon id");
+    }
   }
 
   if (!files?.image.length) throw new AppError(400, "Image is required!");

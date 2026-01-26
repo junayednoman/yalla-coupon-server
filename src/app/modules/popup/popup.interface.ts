@@ -1,13 +1,15 @@
 import { ObjectId } from "mongoose";
 import { TFile } from "../../../interface/file.interface";
 
-export interface IThumbnail {
+export interface IPopup {
+  title?: string;
+  arabicTitle?: string;
   image: string;
   arabicImage: string;
   coupon?: ObjectId;
 }
 
-export type TThumbnailFiles = {
+export type TPopupFiles = {
   image: TFile[];
   arabicImage: TFile[];
 };
