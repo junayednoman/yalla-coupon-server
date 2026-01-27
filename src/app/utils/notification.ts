@@ -11,7 +11,8 @@ admin.initializeApp({
 
 export const sendNotification = async (
   fcmToken: string[],
-  payload: TNotificationPayload
+  payload: TNotificationPayload,
+  extraData?: Record<string, any>,
 ): Promise<any> => {
   try {
     const response = await admin.messaging().sendEachForMulticast({
@@ -20,6 +21,7 @@ export const sendNotification = async (
         title: payload.title,
         body: payload.body,
       },
+      data: extraData,
       apns: {
         headers: {
           "apns-push-type": "alert",
@@ -54,7 +56,7 @@ export const sendNotification = async (
     } else {
       throw new AppError(
         StatusCodes.NOT_IMPLEMENTED,
-        error.message || "Failed to send notification"
+        error.message || "Failed to send notification",
       );
     }
   }

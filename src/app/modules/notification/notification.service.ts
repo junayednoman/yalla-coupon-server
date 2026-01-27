@@ -11,10 +11,14 @@ import Alert from "../alert/alert.model";
 import { sendNotification } from "../../utils/notification";
 
 const sendAlert = async (payload: Partial<TNotificationPayload>) => {
+  let storeImg = null;
   if (payload.coupon) {
-    const coupon = await Coupon.findById(payload.coupon);
+    const coupon = await Coupon.findById(payload.coupon).populate("store");
     if (!coupon) throw new AppError(400, "Invalid coupon id");
+
+    storeImg = (coupon.store as any).image;
   }
+
   const pipeline: PipelineStage[] = [
     {
       $match: {
@@ -48,7 +52,10 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
     session.startTransaction();
 
     await Alert.create([payload], { session });
-
+    const extraData = {
+      couponId: payload.coupon ? String(payload.coupon) : "",
+      storeImg: storeImg || "",
+    };
     for (const user of users) {
       const notificationData = {
         receiver: user._id,
@@ -57,10 +64,12 @@ const sendAlert = async (payload: Partial<TNotificationPayload>) => {
       };
 
       const fcmToken = user.fcmToken;
+
       if (fcmToken) {
         await sendNotification(
           [fcmToken],
           notificationData as TNotificationPayload,
+          extraData,
         );
       }
     }
@@ -163,7 +172,7 @@ const deleteMyNotifications = async (id: string) => {
 const deleteSingleAlert = async (id: string) => {
   const result = await Alert.findByIdAndDelete(id);
   return result;
-}
+};
 
 export const notificationServices = {
   getAllNotifications,
