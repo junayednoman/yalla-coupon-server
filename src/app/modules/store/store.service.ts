@@ -53,22 +53,41 @@ const getAllStores = async (query: Record<string, any>) => {
     delete query.categories;
   }
 
-  pipeline.push(
-    {
-      $lookup: {
-        from: "coupons",
-        localField: "_id",
-        foreignField: "store",
-        as: "coupons",
-      },
+  const targetCountry = query.country;
+  delete query.country;
+
+  pipeline.push({
+    $lookup: {
+      from: "coupons",
+      let: { storeId: "$_id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ["$store", "$$storeId"] },
+
+            status: "active",
+
+            ...(targetCountry ? { countries: targetCountry } : {}),
+          },
+        },
+
+        {
+          $project: {
+            _id: 1,
+          },
+        },
+      ],
+      as: "coupons",
     },
-    {
-      $addFields: {
-        couponCount: { $size: "$coupons" },
-      },
+  });
+
+  pipeline.push({
+    $addFields: {
+      couponCount: { $size: "$coupons" },
     },
-    { $project: { coupons: 0 } },
-  );
+  });
+
+  pipeline.push({ $project: { coupons: 0 } });
 
   const storeQuery = new AggregationBuilder(Store, pipeline, query)
     .search(searchableFields)
@@ -77,11 +96,13 @@ const getAllStores = async (query: Record<string, any>) => {
 
   const result = await storeQuery.execute();
   const total = await storeQuery.countTotal();
+
   const meta = {
     total,
     limit: query.limit || 10,
     page: query.page || 1,
   };
+
   return { data: result, meta };
 };
 

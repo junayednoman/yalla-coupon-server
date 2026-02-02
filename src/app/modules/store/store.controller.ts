@@ -40,7 +40,7 @@ const updateStore = handleAsyncRequest(async (req: TRequest, res) => {
   const result = await storeService.updateStore(
     req.params.id,
     req.body,
-    req.files as any
+    req.files as any,
   );
   successResponse(res, {
     message: "Store updated successfully!",

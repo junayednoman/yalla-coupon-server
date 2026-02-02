@@ -34,7 +34,6 @@ export const sendNotification = async (
         },
       },
     });
-
     if (response.successCount) {
       fcmToken?.map(async (token) => {
         try {
