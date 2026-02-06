@@ -53,6 +53,16 @@ const getAllStores = async (query: Record<string, any>) => {
     delete query.categories;
   }
 
+  if (query.isFeatured) {
+    pipeline.push({
+      $match: {
+        isFeatured: query.isFeatured === "true",
+      },
+    });
+
+    delete query.isFeatured;
+  }
+
   const targetCountry = query.country;
   delete query.country;
 
