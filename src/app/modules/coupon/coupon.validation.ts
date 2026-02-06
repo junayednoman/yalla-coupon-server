@@ -8,7 +8,7 @@ export const couponZodSchema = z.object({
   link: z.string().url("Link must be a valid URL").min(1, "Link is required"),
   arabicLink: z.string().optional(),
   fakeUses: z.number().min(0, "Fake uses must be a non-negative number"),
-  code: z.string().min(1, "Code is required"),
+  code: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   arabicTitle: z.string().optional(),
   subtitle: z.string().min(1, "Subtitle is required"),

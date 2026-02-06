@@ -6,4 +6,5 @@ export const storeZodSchema = z.object({
   categories: z
     .array(z.string().min(1, "Category ID is required"))
     .min(1, "At least one category is required"),
+  isFeatured: z.boolean().optional(),
 });

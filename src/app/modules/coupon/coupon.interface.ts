@@ -7,7 +7,7 @@ export interface ICoupon {
   arabicLink?: string;
   fakeUses: number;
   realUses: number;
-  code: string;
+  code?: string;
   title: string;
   arabicTitle: string;
   subtitle: string;

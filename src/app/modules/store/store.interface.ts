@@ -9,6 +9,7 @@ export interface IStore {
   thumbnail: string;
   arabicThumbnail: string;
   categories: ObjectId[];
+  isFeatured: boolean;
 }
 
 export interface TStoreFiles {

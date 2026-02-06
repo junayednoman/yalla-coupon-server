@@ -10,7 +10,7 @@ const couponSchema = new Schema<ICoupon>(
     arabicLink: { type: String, required: false },
     fakeUses: { type: Number, default: 0 },
     realUses: { type: Number, default: 0 },
-    code: { type: String, required: true },
+    code: { type: String },
     title: { type: String, required: true },
     arabicTitle: { type: String, required: false },
     subtitle: { type: String, required: true },
