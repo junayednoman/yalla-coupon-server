@@ -5,7 +5,7 @@ export const couponZodSchema = z.object({
   countries: z
     .array(z.string().min(1, "Country is required"))
     .min(1, "At least one country is required"),
-  link: z.string().url("Link must be a valid URL").min(1, "Link is required"),
+  link: z.string().optional(),
   arabicLink: z.string().optional(),
   fakeUses: z.number().min(0, "Fake uses must be a non-negative number"),
   code: z.string().optional(),
