@@ -3,7 +3,7 @@ import { ObjectId } from "mongoose";
 export interface ICoupon {
   store: ObjectId;
   countries: string[];
-  link: string;
+  link?: string;
   arabicLink?: string;
   fakeUses: number;
   realUses: number;
