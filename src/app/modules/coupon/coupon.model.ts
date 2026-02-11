@@ -23,6 +23,7 @@ const couponSchema = new Schema<ICoupon>(
       enum: Object.values(CouponType),
       required: true,
     },
+    discountPercentage: { type: String, required: true },
     howToUse: { type: [String], required: true },
     arabicHowToUse: { type: [String], required: false },
     terms: { type: [String], required: true },
