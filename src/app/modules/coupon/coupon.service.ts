@@ -100,6 +100,14 @@ const getAllCoupons = async (
     },
   );
 
+  if (!userId) {
+    pipeline.push({
+      $match: {
+        type: "free",
+      },
+    });
+  }
+
   const couponQuery = new AggregationBuilder(Coupon, pipeline, query)
     .search(searchableFields)
     .filter()
