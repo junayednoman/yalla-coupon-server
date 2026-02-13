@@ -7,13 +7,13 @@ import { PipelineStage } from "mongoose";
 
 const createCategory = async (payload: TCategory, files: TCategoryFiles) => {
   if (!files?.image.length) throw new AppError(400, "Image is required!");
-  if (!files?.arabicImage.length)
-    throw new AppError(400, "Arabic image is required!");
+  // if (!files?.arabicImage.length)
+  //   throw new AppError(400, "Arabic image is required!");
   const existing = await Category.findOne({ name: payload.name });
   if (existing) throw new AppError(400, "Category already exists!");
 
   payload.image = await uploadToS3(files.image[0]);
-  payload.arabicImage = await uploadToS3(files.arabicImage[0]);
+  // payload.arabicImage = await uploadToS3(files.arabicImage[0]);
   const category = await Category.create(payload);
   return category;
 };

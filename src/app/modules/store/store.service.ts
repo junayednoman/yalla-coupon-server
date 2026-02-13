@@ -21,15 +21,15 @@ const createStore = async (payload: IStore, files: TStoreFiles) => {
   }
 
   if (!files?.image?.length) throw new AppError(400, "Image is required!");
-  if (!files?.arabicImage?.length)
-    throw new AppError(400, "Arabic image is required!");
+  // if (!files?.arabicImage?.length)
+  //   throw new AppError(400, "Arabic image is required!");
   if (!files?.thumbnail?.length)
     throw new AppError(400, "Thumbnail is required!");
   if (!files?.arabicImage?.length)
     throw new AppError(400, "Arabic thumbnail is required!");
 
   payload.image = await uploadToS3(files.image[0]);
-  payload.arabicImage = await uploadToS3(files.arabicImage[0]);
+  // payload.arabicImage = await uploadToS3(files.arabicImage[0]);
   payload.thumbnail = await uploadToS3(files.thumbnail[0]);
   payload.arabicThumbnail = await uploadToS3(files.arabicThumbnail[0]);
   const result = await Store.create(payload);
