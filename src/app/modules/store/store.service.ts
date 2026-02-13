@@ -202,7 +202,7 @@ const deleteStore = async (storeId: string) => {
   const result = await Store.findByIdAndDelete(storeId);
   if (result) {
     await deleteFromS3(store.image);
-    await deleteFromS3(store.arabicImage);
+    if (store.arabicImage) await deleteFromS3(store.arabicImage);
     await deleteFromS3(store.thumbnail);
     await deleteFromS3(store.arabicThumbnail);
   }

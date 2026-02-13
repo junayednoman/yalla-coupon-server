@@ -8,7 +8,7 @@ const storeSchema = new Schema<IStore>(
     image: { type: String, required: true },
     arabicImage: { type: String, required: true },
     thumbnail: { type: String, required: true },
-    arabicThumbnail: { type: String, required: true },
+    arabicThumbnail: { type: String },
     isFeatured: { type: Boolean, default: false },
     categories: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },

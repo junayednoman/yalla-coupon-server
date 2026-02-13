@@ -5,7 +5,7 @@ export interface IStore {
   name: string;
   arabicName: string;
   image: string;
-  arabicImage: string;
+  arabicImage?: string;
   thumbnail: string;
   arabicThumbnail: string;
   categories: ObjectId[];
