@@ -32,7 +32,7 @@ router.put(
   authVerify([userRoles.admin]),
   upload.fields([
     { name: "image", maxCount: 1 },
-    { name: "arabicImage", maxCount: 1 },
+    // { name: "arabicImage", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
     { name: "arabicThumbnail", maxCount: 1 },
   ]),
