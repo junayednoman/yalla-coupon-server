@@ -4,7 +4,7 @@ export type TCategory = {
   name: string;
   arabicName: string;
   image: string;
-  arabicImage?: string;
+  arabicImage: string;
 };
 
 export type TCategoryFiles = {
