@@ -73,7 +73,7 @@ const updateCategory = async (
 
   if (files?.image?.length) payload.image = await uploadToS3(files.image[0]);
   if (files?.arabicImage?.length)
-    payload.arabicImage = await uploadToS3(files.image[0]);
+    payload.arabicImage = await uploadToS3(files.arabicImage[0]);
   const updated = await Category.findByIdAndUpdate(id, payload, { new: true });
   if (updated && category.image) await deleteFromS3(category.image);
   if (updated && category.arabicImage) await deleteFromS3(category.arabicImage);
