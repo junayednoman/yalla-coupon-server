@@ -14,7 +14,7 @@ export interface ICoupon {
   arabicSubtitle: string;
   validity: string;
   type: "free" | "premium";
-  status: "active" | "expired";
+  status: "active" | "inactive";
   applicableUserType: "FIRST_TIME" | "REPEAT" | "BOTH";
   discountPercentage: string;
   howToUse: string[];

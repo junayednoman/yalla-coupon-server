@@ -30,6 +30,7 @@ export const couponZodSchema = z.object({
   arabicTerms: z
     .array(z.string().min(1, "Term is required"))
     .min(1, "At least one term is required"),
+  status: z.enum(["active", "inactive"]),
 });
 
 export type TCouponZod = z.infer<typeof couponZodSchema>;

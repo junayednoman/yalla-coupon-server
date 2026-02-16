@@ -17,7 +17,7 @@ const couponSchema = new Schema<ICoupon>(
     arabicSubtitle: { type: String, required: false },
     validity: { type: String, required: true },
     type: { type: String, enum: ["free", "premium"], default: "free" },
-    status: { type: String, enum: ["active", "expired"], default: "active" },
+    status: { type: String, enum: ["active", "inactive"], default: "inactive" },
     applicableUserType: {
       type: String,
       enum: Object.values(CouponType),
