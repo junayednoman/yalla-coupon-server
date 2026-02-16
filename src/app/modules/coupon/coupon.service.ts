@@ -84,21 +84,14 @@ const getAllCoupons = async (
     );
   }
 
-  pipeline.push(
-    {
-      $lookup: {
-        from: "stores",
-        localField: "store",
-        foreignField: "_id",
-        as: "store",
-      },
+  pipeline.push({
+    $lookup: {
+      from: "stores",
+      localField: "store",
+      foreignField: "_id",
+      as: "store",
     },
-    {
-      $match: {
-        status: "active",
-      },
-    },
-  );
+  });
 
   if (!userId) {
     pipeline.push({
@@ -113,7 +106,6 @@ const getAllCoupons = async (
     .filter()
     .sort()
     .paginate();
-  // .selectFields();
 
   const total = await couponQuery.countTotal();
   const result = await couponQuery.execute();
